@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+
+
+
+    <script
+      src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
+      type="text/javascript"
+    ></script>
+    <link rel="stylesheet" type="text/css" href="jsxgraph.css" />
+    <script type="text/javascript" src="loadjsxgraph.js"></script>
+    <script type="text/javascript" src="jsxgraphcore.js"></script>
+  
+  </head>
+  <body>
+
+
+
+
+
+    <h1>Título</h1>
+    \[f_i=\sum_1^2\]
+
+
+    <div id='ww1' class='jxgbox' style="width: 600px; height: 300px; display: block; margin: auto;"></div>
+    <script type='text/javascript'>
+      JXG.Options.text.useMathJax = true;
+      board = JXG.JSXGraph.initBoard("ww1", {
+        originX: 200,
+        originY: 250,
+        unitX: 20,
+        unitY: 20,
+        axis: true,
+        showNavigation: false,
+        showCopyright: false,
+      });
+      theSlider = board.create(
+        "slider",
+        [
+          [1, 5],
+          [10, 5],
+          [-5, 3, 5],
+        ],
+        { snapWidth: 0.1 }
+      );
+      w = board.create(
+        "slider",
+        [
+          [1, 3],
+          [10, 3],
+          [0, 0.5, 1],
+        ],
+        { snapWidth: 0.1 }
+      );
+      board.create("functiongraph", [
+        function (t) {
+          return Math.pow(Math.E, w.Value()*t - theSlider.Value());
+        },
+      ]);
+      board.create('text', [
+        1,
+        6,
+        function () {
+          return '\\(f(x) = e^{'+ w.Value() + 'x' + '-' + theSlider.Value() + '}\\)';
+        },
+      ]);
+    </script>
+
+
+
+
+
+    <div id='jxgbox' class='jxgbox' style="width: 600px; height: 300px; display: block; margin: auto;"></div>
+    <script type='text/javascript'>
+        var brd, k;
+        JXG.Options.text.useMathJax = true;
+        brd = JXG.JSXGraph.initBoard('jxgbox', {boundingbox:[-5,20,5,-5], axis:true, showNavigation:false, showCopyright:false});
+        k = brd.create('slider',[[-4,-2],[3,-2],[-5,0.5,5]],{name:'n', snapWidth:1});
+        brd.create('functiongraph', [function(t) {return Math.pow(Math.E,t*k.Value());}],{strokeColor:'green'});
+        brd.create('text',[-4,15,
+          function() { 
+            var temp;
+            if (k.Value() == 1) {
+              temp = '\\[f(x) = e^x \\]'; 
+            } else {
+              temp = '\\[f(x) = e^{' + k.Value() + 'x}\\]';
+            }
+           return temp;
+         }], {fontSize:12});
+        brd.update();
+    </script> 
+
+
+    <form>
+
+      <div
+      id="box"
+      class="jxgbox"
+      style="width: 600px; height: 300px; display: block; margin: auto;"
+    ></div>
+
+      <textarea
+        id="input"
+        wrap="off"
+        style="width: 600px; height: 110px; display: block; margin: auto;"
+      >
+        function f(x) {
+           return Math.cos(x)*p.Y();
+        }
+        c = plot(f);
+        // Derivative:
+        g = JXG.Math.Numerics.D(f);
+        plot(g,{strokecolor:'black', dash:3});
+        </textarea
+      >
+      <br />
+      <input type="button" value="plot" onClick="doIt()" />
+      <input type="button" value="clear all" onClick="board=clearAll(board)" />
+    </form>
+    <script>
+      var board = JXG.JSXGraph.initBoard("box", {
+        boundingbox: [-5, 3, 5, -3],
+        axis: true,
+      });
+
+      // Macro function plotter
+      function addCurve(board, func, atts) {
+        var f = board.create("functiongraph", [func], atts);
+        return f;
+      }
+
+      // Simplified plotting of function
+      function plot(func, atts) {
+        if (atts == null) {
+          return addCurve(board, func, { strokewidth: 2 });
+        } else {
+          return addCurve(board, func, atts);
+        }
+      }
+
+      // Free point
+      var p = board.create("point", [1, 1], { style: 6, name: "p" });
+
+      // Usage of the macro
+      function doIt() {
+        eval(document.getElementById("input").value);
+      }
+
+      function clearAll(board) {
+        JXG.JSXGraph.freeBoard(board);
+        board = JXG.JSXGraph.initBoard("box", {
+          boundingbox: [-5, 8, 8, -5],
+          axis: true,
+        });
+        p = board.create("point", [3, -4], { style: 6, name: "p" });
+        return board;
+      }
+    </script>
+
+    <h1>Título</h1>
+
+    <div id="ww" class="jxgbox" style="width: 500px; height: 300px;"></div>
+
+    <script type="text/javascript">
+      var board = JXG.JSXGraph.initBoard("ww", {
+        originX: 50,
+        originY: 250,
+        unitX: 50,
+        unitY: 50,
+        axis: true,
+      });
+      board.create("point", [1, 1]);
+      p1 = board.create("point", [3, 1], { name: "p1" });
+      p2 = board.create("point", [2, 3], { name: "p2" });
+      p3 = board.create("point", [3, 3], { name: "p3" });
+      board.create("angle", [p1, p2, p3], { name: "" });
+
+      theFct = board.create("functiongraph", [
+        function (t) {
+          return 0.5 * (t - 1) * t * t;
+        },
+      ]);
+      theGlider = board.create("glider", [theFct], { name: "" });
+      board.create("tangent", [theGlider]);
+
+      theCircle = board.create("circle", [[3, 3], 1]);
+      theGlider = board.create("glider", [theCircle], { name: "" });
+      board.create("tangent", [theGlider]);
+
+      f1 = board.create("point", [1, 2], { name: "f1" });
+      f2 = board.create("point", [5, 2], { name: "f2" });
+      board.create("ellipse", [f1, f2, 5]);
+      board.create("ellipse", [f1, f2, 2]);
+    </script>
+
+    <h1>Título</h1>
+    \[\sum_1^2\]
+    <div id="www" class="jxgbox" style="width: 500px; height: 300px;"></div>
+
+    <script>
+      board = JXG.JSXGraph.initBoard("www", {
+        originX: 200,
+        originY: 250,
+        unitX: 20,
+        unitY: 20,
+        axis: true,
+        showNavigation: false,
+        showCopyright: false,
+      });
+      ww = board.create(
+        "slider",
+        [
+          [1, 5],
+          [10, 5],
+          [0.1, 0.2, 1],
+        ],
+        { snapWidth: 0.5 }
+      );
+      theFct = board.create("functiongraph", [
+        function (t) {
+          return (t * t*t) / (ww.Value()) - 1;
+        },
+      ]);
+                                                                        //,{dash:1,strokewidth:2,strokeColor:'red'}
+      board.create("integral", [[-5, 3], theFct], {
+        color: "red",
+        fillOpacity: 0.5,
+      });
+    </script>
+
+
+  </body>
+</html>
