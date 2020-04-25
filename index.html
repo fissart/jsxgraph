@@ -113,7 +113,13 @@
     <script type='text/javascript'>
         var brd, k;
         JXG.Options.text.useMathJax = true;
-        JXG.SVGRenderer('jxgboxw')
+        JXG.Options.text.fontSize = 16;
+        JXG.Options = JXG.merge(JXG.Options, {
+    showNavigation: false,
+    point: {
+        face: 'x'
+    }
+ });
         brd = JXG.JSXGraph.initBoard('jxgboxw', {boundingbox:[-5,20,5,-5], axis:true, showNavigation:false, showCopyright:false});
         k = brd.create('slider',[[-4,-2],[3,-2],[-5,0.5,5]],{name:'n', snapWidth:1});
         brd.create('functiongraph', [function(t) {return Math.pow(Math.E,t*k.Value());}],{strokeColor:'green'});
