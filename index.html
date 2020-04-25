@@ -107,71 +107,38 @@
     </script> 
 
 
-    <form>
 
-      <div
-      id="box"
-      class="jxgbox"
-      style="width: 600px; height: 300px; display: block; margin: auto;"
-    ></div>
 
-      <textarea
-        id="input"
-        wrap="off"
-        style="width: 600px; height: 110px; display: block; margin: auto;"
-      >
-        function f(x) {
-           return Math.cos(x)*p.Y();
-        }
-        c = plot(f);
-        // Derivative:
-        g = JXG.Math.Numerics.D(f);
-        plot(g,{strokecolor:'black', dash:3});
-        </textarea
-      >
-      <br />
-      <input type="button" value="plot" onClick="doIt()" />
-      <input type="button" value="clear all" onClick="board=clearAll(board)" />
-    </form>
-    <script>
-      var board = JXG.JSXGraph.initBoard("box", {
-        boundingbox: [-5, 3, 5, -3],
-        axis: true,
-      });
+    <div id='jxgboxw' class='jxgbox' style="width: 600px; height: 300px; display: block; margin: auto;"></div>
+    <script type='text/javascript'>
+        var brd, k;
+        JXG.Options.text.useMathJax = true;
+        JXG.SVGRenderer('jxgboxw')
+        brd = JXG.JSXGraph.initBoard('jxgboxw', {boundingbox:[-5,20,5,-5], axis:true, showNavigation:false, showCopyright:false});
+        k = brd.create('slider',[[-4,-2],[3,-2],[-5,0.5,5]],{name:'n', snapWidth:1});
+        brd.create('functiongraph', [function(t) {return Math.pow(Math.E,t*k.Value());}],{strokeColor:'green'});
+        brd.create('text',[-4,15,
+          function() { 
+            var temp;
+            if (k.Value() == 1) {
+              temp = '\\[f(x) = e^x \\]'; 
+            } else {
+              temp = '\\[f(x) = e^{' + k.Value() + 'x}\\]';
+            }
+           return temp;
+         }], {fontSize:12});
+        brd.update();
+    </script> 
 
-      // Macro function plotter
-      function addCurve(board, func, atts) {
-        var f = board.create("functiongraph", [func], atts);
-        return f;
-      }
 
-      // Simplified plotting of function
-      function plot(func, atts) {
-        if (atts == null) {
-          return addCurve(board, func, { strokewidth: 2 });
-        } else {
-          return addCurve(board, func, atts);
-        }
-      }
 
-      // Free point
-      var p = board.create("point", [1, 1], { style: 6, name: "p" });
 
-      // Usage of the macro
-      function doIt() {
-        eval(document.getElementById("input").value);
-      }
 
-      function clearAll(board) {
-        JXG.JSXGraph.freeBoard(board);
-        board = JXG.JSXGraph.initBoard("box", {
-          boundingbox: [-5, 8, 8, -5],
-          axis: true,
-        });
-        p = board.create("point", [3, -4], { style: 6, name: "p" });
-        return board;
-      }
-    </script>
+
+
+
+
+
 
     <h1>Título</h1>
 
@@ -185,36 +152,48 @@
         unitY: 50,
         axis: true,
       });
-      board.create("point", [1, 1]);
-      p1 = board.create("point", [3, 1], { name: "p1" });
-      p2 = board.create("point", [2, 3], { name: "p2" });
-      p3 = board.create("point", [3, 3], { name: "p3" });
-      board.create("angle", [p1, p2, p3], { name: "" });
+  
 
-      theFct = board.create("functiongraph", [
-        function (t) {
-          return 0.5 * (t - 1) * t * t;
-        },
-      ]);
-      theGlider = board.create("glider", [theFct], { name: "" });
-      board.create("tangent", [theGlider]);
+    
 
-      theCircle = board.create("circle", [[3, 3], 1]);
-      theGlider = board.create("glider", [theCircle], { name: "" });
-      board.create("tangent", [theGlider]);
+      f1 = board.create("point", [2,1], { name: "\\(F_1\\)" , label:{autoPosition: true, offset:[10, 10]}});
+      f2 = board.create("point", [6,3.5], { name: "\\(F_2\\)" , label:{autoPosition: true, offset:[10, 10]}});
+      var l1 = board.create('line', [f1, f2]);
+      var mp1 = board.create('midpoint', [f1, f2], { name: "\\(B_1\\)", label:{autoPosition: true, offset:[10, 10]} });
+ 
+      var perp1 = board.create('perpendicular', [l1, mp1]);
 
-      f1 = board.create("point", [1, 2], { name: "f1" });
-      f2 = board.create("point", [5, 2], { name: "f2" });
-      board.create("ellipse", [f1, f2, 5]);
-      board.create("ellipse", [f1, f2, 2]);
+
+      ew=board.create("ellipse", [f1, f2, 6]);
+
+      
+       
+      var b1 = board.create('intersection', [ew, perp1, 0], { name: "\\(B_1\\)", label:{autoPosition: true, offset:[10, 10]} });
+      var b2 = board.create('intersection', [ew, perp1, 1], { name: "\\(B_2\\)", label:{autoPosition: true, offset:[10, 10]} });
+
+      var l1 = board.create('segment', [b1, b2]);
+      var l1 = board.create('segment', [b1, f2]);
+      //board.create("ellipse", [f1, f2, 2]);
+      ewg = board.create("glider", [2, 2, ew], { name: "\\(\\mathcal{L}_2\\)", label:{autoPosition: true, offset:[10, 10]} });
+
+      board.create("tangent", [ewg]);
     </script>
+
+
+
+\(B_1=A_1\)
+
+
+
+
+
 
     <h1>Título</h1>
     \[\sum_1^2\]
-    <div id="www" class="jxgbox" style="width: 500px; height: 300px;"></div>
+    <div id="www1" class="jxgbox" style="width: 500px; height: 300px;"></div>
 
     <script>
-      board = JXG.JSXGraph.initBoard("www", {
+      board = JXG.JSXGraph.initBoard("www1", {
         originX: 200,
         originY: 250,
         unitX: 20,
@@ -228,18 +207,18 @@
         [
           [1, 5],
           [10, 5],
-          [0.1, 0.2, 1],
+          [0.1, 0.01, 1],
         ],
-        { snapWidth: 0.5 }
+        { snapWidth: 0.02}
       );
       theFct = board.create("functiongraph", [
         function (t) {
-          return (t * t*t) / (ww.Value()) - 1;
+          return (0.01 * t*t) / (ww.Value()) - 1;
         },
       ]);
                                                                         //,{dash:1,strokewidth:2,strokeColor:'red'}
-      board.create("integral", [[-0.1, 3], theFct], {
-        color: "red",
+      board.create("integral", [[-5, 7], theFct], {
+        color: "brown",
         fillOpacity: 0.5,
       });
     </script>
