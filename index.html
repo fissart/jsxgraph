@@ -114,12 +114,7 @@
         var brd, k;
         JXG.Options.text.useMathJax = true;
         JXG.Options.text.fontSize = 16;
-        JXG.Options = JXG.merge(JXG.Options, {
-    showNavigation: false,
-    point: {
-        face: 'x'
-    }
- });
+        JXG.Options = JXG.merge(JXG.Options, {showNavigation: false,point:{face:'o', size:1, color:'#000000'}});
         brd = JXG.JSXGraph.initBoard('jxgboxw', {boundingbox:[-5,20,5,-5], axis:true, showNavigation:false, showCopyright:false});
         k = brd.create('slider',[[-4,-2],[3,-2],[-5,0.5,5]],{name:'n', snapWidth:1});
         brd.create('functiongraph', [function(t) {return Math.pow(Math.E,t*k.Value());}],{strokeColor:'green'});
@@ -148,7 +143,7 @@
 
     <h1>Título</h1>
 
-    <div id="ww" class="jxgbox" style="width: 500px; height: 300px;"></div>
+    <div id="ww" class="jxgbox" style="width: 700px; height: 380px; display: block; margin: auto;"></div>
 
     <script type="text/javascript">
       var board = JXG.JSXGraph.initBoard("ww", {
@@ -160,29 +155,47 @@
       });
   
 
-    
+  
+      f1 = board.create("point", [2,-1], { name: "\\(F_1\\)" , fillColor:'#306754',label:{autoPosition: true, offset:[10, 10]}});
+      f2 = board.create("point", [9,3], { name: "\\(F_2\\)" , label:{autoPosition: true, offset:[10, 10]}});
+      var l1 = board.create('line', [f1, f2],{strokeColor:'green',strokewidth:1});
+      var mp1 = board.create('midpoint', [f1, f2], { name: "\\(O\\)", label:{autoPosition: true, offset:[10, 10]} });
+      var vec = board.create('arrow', [[0,0], mp1],{straightFirst:true, straightLast:true, strokeWidth:1, dash:2});
+      var perp1 = board.create('perpendicular', [l1, mp1] ,{strokeColor:'red',strokewidth:0});
 
-      f1 = board.create("point", [2,1], { name: "\\(F_1\\)" , label:{autoPosition: true, offset:[10, 10]}});
-      f2 = board.create("point", [6,3.5], { name: "\\(F_2\\)" , label:{autoPosition: true, offset:[10, 10]}});
-      var l1 = board.create('line', [f1, f2]);
-      var mp1 = board.create('midpoint', [f1, f2], { name: "\\(B_1\\)", label:{autoPosition: true, offset:[10, 10]} });
- 
-      var perp1 = board.create('perpendicular', [l1, mp1]);
 
-
-      ew=board.create("ellipse", [f1, f2, 6]);
+      ew=board.create("ellipse", [f1, f2, 10],{strokeColor:'#000000',strokewidth:2});
 
       
        
       var b1 = board.create('intersection', [ew, perp1, 0], { name: "\\(B_1\\)", label:{autoPosition: true, offset:[10, 10]} });
       var b2 = board.create('intersection', [ew, perp1, 1], { name: "\\(B_2\\)", label:{autoPosition: true, offset:[10, 10]} });
 
-      var l1 = board.create('segment', [b1, b2]);
-      var l1 = board.create('segment', [b1, f2]);
-      //board.create("ellipse", [f1, f2, 2]);
+      var c1 = board.create('intersection', [ew, l1, 0], { name: "\\(V_1\\)", label:{autoPosition: true, offset:[10, 10]} });
+      var c2 = board.create('intersection', [ew, l1, 1], { name: "\\(V_2\\)", label:{autoPosition: true, offset:[10, 10]} });
+
+
+
+      var s1 = board.create('segment', [b1, b2],{strokeColor:'green',strokewidth:1});
+      var s1 = board.create('segment', [b1, f2],{straightFirst:true, straightLast:true, strokeWidth:1, dash:1});
+      
+      
+
       ewg = board.create("glider", [2, 2, ew], { name: "\\(\\mathcal{L}_2\\)", label:{autoPosition: true, offset:[10, 10]} });
 
-      board.create("tangent", [ewg]);
+      c3 = board.create('circle', [mp1, function() { return mp1.Dist(c1)*mp1.Dist(c1)/mp1.Dist(f1); }],{strokeColor:'red',strokewidth:0});
+
+      var d1 = board.create('intersection', [c3, l1, 0], { name: ""});
+      var d2 = board.create('intersection', [c3, l1, 1], { name: ""});
+
+      var perp2 = board.create('perpendicular', [l1, d1],{strokeColor:'#256552',strokewidth:1});
+      var perp3 = board.create('perpendicular', [l1, d2],{strokeColor:'#256552',strokewidth:1,name:'\\(\\mathcal{L}_d\\)', withLabel: true});
+
+
+      var w = board.create("tangent", [ewg],{strokeColor:'#222200',strokewidth:1});
+      
+      var pol2 = board.create('polygon', [f1, ewg, f2],{hasInnerPoints: true});
+      var t = board.create('text', [11, 0.2, function() { return pol2.Perimeter().toFixed(3); }]);
     </script>
 
 
