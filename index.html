@@ -152,8 +152,11 @@
         unitX: 50,
         unitY: 50,
         axis: true,
+        defaultAxes: {y: { ticks: {visible: true, majorHeight: 5 }},x: { ticks: { visible: true, majorHeight: 5 }}},
+  
       });
   
+      
 
   
       f1 = board.create("point", [2,-1], { name: "\\(F_1\\)" , fillColor:'#306754',label:{autoPosition: true, offset:[10, 10]}});
