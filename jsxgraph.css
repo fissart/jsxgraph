@@ -38,7 +38,7 @@
     border-width: 1px;
     border-color: #356AA0;
     border-radius: 10px;
-    -webkit-border-radius: 10px;
+    -webkit-border-radius: 5px;
     -ms-touch-action: none;
     /* touch-action: none; */ /* Set with JavaScript */
 }

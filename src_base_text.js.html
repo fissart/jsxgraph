@@ -1,0 +1,1105 @@
+1 /*
+2     Copyright 2008-2020
+3         Matthias Ehmann,
+4         Michael Gerhaeuser,
+5         Carsten Miller,
+6         Bianca Valentin,
+7         Alfred Wassermann,
+8         Peter Wilfahrt
+9 
+10     This file is part of JSXGraph.
+11 
+12     JSXGraph is free software dual licensed under the GNU LGPL or MIT License.
+13 
+14     You can redistribute it and/or modify it under the terms of the
+15 
+16       * GNU Lesser General Public License as published by
+17         the Free Software Foundation, either version 3 of the License, or
+18         (at your option) any later version
+19       OR
+20       * MIT License: https://github.com/jsxgraph/jsxgraph/blob/master/LICENSE.MIT
+21 
+22     JSXGraph is distributed in the hope that it will be useful,
+23     but WITHOUT ANY WARRANTY; without even the implied warranty of
+24     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+25     GNU Lesser General Public License for more details.
+26 
+27     You should have received a copy of the GNU Lesser General Public License and
+28     the MIT License along with JSXGraph. If not, see <http://www.gnu.org/licenses/>
+29     and <http://opensource.org/licenses/MIT/>.
+30  */
+31 
+32 
+33 /*global JXG: true, define: true, window: true*/
+34 /*jslint nomen: true, plusplus: true*/
+35 
+36 /* depends:
+37  jxg
+38  base/constants
+39  base/coords
+40  base/element
+41  parser/geonext
+42  math/statistics
+43  utils/env
+44  utils/type
+45  */
+46 
+47 /**
+48  * @fileoverview In this file the Text element is defined.
+49  */
+50 
+51 define([
+52     'jxg', 'base/constants', 'base/coords', 'base/element', 'parser/geonext', 'math/statistics',
+53     'utils/env', 'utils/type', 'math/math', 'math/geometry', 'base/coordselement'
+54 ], function (JXG, Const, Coords, GeometryElement, GeonextParser, Statistics, Env, Type, Mat, Geometry, CoordsElement) {
+55 
+56     "use strict";
+57 
+58     var priv = {
+59             HTMLSliderInputEventHandler: function () {
+60                 this._val = parseFloat(this.rendNodeRange.value);
+61                 this.rendNodeOut.value = this.rendNodeRange.value;
+62                 this.board.update();
+63             }
+64         };
+65 
+66     /**
+67      * Construct and handle texts.
+68      *
+69      * The coordinates can be relative to the coordinates of an element
+70      * given in {@link JXG.Options#text.anchor}.
+71      *
+72      * MathJax, HTML and GEONExT syntax can be handled.
+73      * @class Creates a new text object. Do not use this constructor to create a text. Use {@link JXG.Board#create} with
+74      * type {@link Text} instead.
+75      * @augments JXG.GeometryElement
+76      * @augments JXG.CoordsElement
+77      * @param {string|JXG.Board} board The board the new text is drawn on.
+78      * @param {Array} coordinates An array with the user coordinates of the text.
+79      * @param {Object} attributes An object containing visual properties and optional a name and a id.
+80      * @param {string|function} content A string or a function returning a string.
+81      *
+82      */
+83     JXG.Text = function (board, coords, attributes, content) {
+84         this.constructor(board, attributes, Const.OBJECT_TYPE_TEXT, Const.OBJECT_CLASS_TEXT);
+85 
+86         this.element = this.board.select(attributes.anchor);
+87         this.coordsConstructor(coords, Type.evaluate(this.visProp.islabel));
+88 
+89         this.content = '';
+90         this.plaintext = '';
+91         this.plaintextOld = null;
+92         this.orgText = '';
+93 
+94         this.needsSizeUpdate = false;
+95         // Only used by infobox anymore
+96         this.hiddenByParent = false;
+97 
+98         /**
+99          * Width and height of the the text element in pixel.
+100          *
+101          * @private
+102          * @type {Array}
+103          */
+104         this.size = [1.0, 1.0];
+105         this.id = this.board.setId(this, 'T');
+106 
+107         // Set text before drawing
+108         this._setUpdateText(content);
+109         this.updateText();
+110 
+111         this.board.renderer.drawText(this);
+112         this.board.finalizeAdding(this);
+113 
+114         if (Type.isString(this.content)) {
+115             this.notifyParents(this.content);
+116         }
+117         this.elType = 'text';
+118 
+119         this.methodMap = Type.deepCopy(this.methodMap, {
+120             setText: 'setTextJessieCode',
+121             // free: 'free',
+122             move: 'setCoords'
+123         });
+124     };
+125 
+126     JXG.Text.prototype = new GeometryElement();
+127     Type.copyPrototypeMethods(JXG.Text, CoordsElement, 'coordsConstructor');
+128 
+129     JXG.extend(JXG.Text.prototype, /** @lends JXG.Text.prototype */ {
+130         /**
+131          * @private
+132          * Test if the the screen coordinates (x,y) are in a small stripe
+133          * at the left side or at the right side of the text.
+134          * Sensitivity is set in this.board.options.precision.hasPoint.
+135          * If dragarea is set to 'all' (default), tests if the the screen
+136         * coordinates (x,y) are in within the text boundary.
+137          * @param {Number} x
+138          * @param {Number} y
+139          * @returns {Boolean}
+140          */
+141         hasPoint: function (x, y) {
+142             var lft, rt, top, bot, ax, ay,
+143                 r = this.board.options.precision.hasPoint;
+144 
+145             if (this.transformations.length > 0) {
+146                 //Transform the mouse/touch coordinates
+147                 // back to the original position of the text.
+148                 lft = Mat.matVecMult(Mat.inverse(this.board.renderer.joinTransforms(this, this.transformations)), [1, x, y]);
+149                 x = lft[1];
+150                 y = lft[2];
+151             }
+152 
+153             ax = this.getAnchorX();
+154             if (ax === 'right') {
+155                 lft = this.coords.scrCoords[1] - this.size[0];
+156             } else if (ax === 'middle') {
+157                 lft = this.coords.scrCoords[1] - 0.5 * this.size[0];
+158             } else {
+159                 lft = this.coords.scrCoords[1];
+160             }
+161             rt = lft + this.size[0];
+162 
+163             ay = this.getAnchorY();
+164             if (ay === 'top') {
+165                 bot = this.coords.scrCoords[2] + this.size[1];
+166             } else if (ay === 'middle') {
+167                 bot = this.coords.scrCoords[2] + 0.5 * this.size[1];
+168             } else {
+169                 bot = this.coords.scrCoords[2];
+170             }
+171             top = bot - this.size[1];
+172 
+173             if (Type.evaluate(this.visProp.dragarea) === 'all') {
+174                 return x >= lft - r && x < rt + r && y >= top - r  && y <= bot + r;
+175             } else {
+176                 // e.g. 'small'
+177                 return (y >= top - r && y <= bot + r) &&
+178                     ((x >= lft - r  && x <= lft + 2 * r) ||
+179                     (x >= rt - 2 * r && x <= rt + r));
+180 
+181             }
+182 
+183         },
+184 
+185         /**
+186          * This sets the updateText function of this element depending on the type of text content passed.
+187          * Used by {@link JXG.Text#_setText} and {@link JXG.Text} constructor.
+188          * @param {String|Function|Number} text
+189          * @private
+190          */
+191         _setUpdateText: function (text) {
+192             var updateText, resolvedText,
+193                 ev_p = Type.evaluate(this.visProp.parse),
+194                 ev_um = Type.evaluate(this.visProp.usemathjax);
+195 
+196             this.orgText = text;
+197             if (Type.isFunction(text)) {
+198                 this.updateText = function () {
+199                     resolvedText = text().toString();
+200                     if (ev_p && !ev_um) {
+201                         this.plaintext = this.replaceSub(this.replaceSup(this.convertGeonext2CSS(resolvedText)));
+202                     } else {
+203                         this.plaintext = resolvedText;
+204                     }
+205                 };
+206             } else if (Type.isString(text) && !ev_p) {   // Do not parse
+207                 this.updateText = function () {
+208                     this.plaintext = text;
+209                 };
+210             } else {                                     // Parse
+211                 if (Type.isNumber(text)) {
+212                     this.content = Type.toFixed(text, Type.evaluate(this.visProp.digits));
+213                 } else {
+214                     if (Type.evaluate(this.visProp.useasciimathml)) {
+215                         // Convert via ASCIIMathML
+216                         this.content = "'`" + text + "`'";
+217                     } else if (ev_um) {
+218                         this.content = "'" + text + "'";
+219                     } else {
+220                         // Converts GEONExT syntax into JavaScript string
+221                         // Short math is allowed
+222                         // Avoid geonext2JS calls
+223                         this.content = this.generateTerm(text, true, true);
+224                     }
+225                 }
+226                 updateText = this.board.jc.snippet(this.content, true, '', false);
+227                 this.updateText = function () {
+228                     this.plaintext = updateText();
+229                 };
+230             }
+231         },
+232 
+233         /**
+234          * Defines new content. This is used by {@link JXG.Text#setTextJessieCode} and {@link JXG.Text#setText}. This is required because
+235          * JessieCode needs to filter all Texts inserted into the DOM and thus has to replace setText by setTextJessieCode.
+236          * @param {String|Function|Number} text
+237          * @returns {JXG.Text}
+238          * @private
+239          */
+240         _setText: function (text) {
+241             this._setUpdateText(text);
+242 
+243             // First evaluation of the string.
+244             // We need this for display='internal' and Canvas
+245             this.updateText();
+246             this.fullUpdate();
+247 
+248             // We do not call updateSize for the infobox to speed up rendering
+249             if (!this.board.infobox || this.id !== this.board.infobox.id) {
+250                 this.updateSize();    // updateSize() is called at least once.
+251             }
+252 
+253             // This may slow down canvas renderer
+254             // if (this.board.renderer.type === 'canvas') {
+255             //     this.board.fullUpdate();
+256             // }
+257 
+258             return this;
+259         },
+260 
+261         /**
+262          * Defines new content but converts < and > to HTML entities before updating the DOM.
+263          * @param {String|function} text
+264          */
+265         setTextJessieCode: function (text) {
+266             var s;
+267 
+268             this.visProp.castext = text;
+269 
+270             if (Type.isFunction(text)) {
+271                 s = function () {
+272                     return Type.sanitizeHTML(text());
+273                 };
+274             } else {
+275                 if (Type.isNumber(text)) {
+276                     s = text;
+277                 } else {
+278                     s = Type.sanitizeHTML(text);
+279                 }
+280             }
+281 
+282             return this._setText(s);
+283         },
+284 
+285         /**
+286          * Defines new content.
+287          * @param {String|function} text
+288          * @returns {JXG.Text} Reference to the text object.
+289          */
+290         setText: function (text) {
+291             return this._setText(text);
+292         },
+293 
+294         /**
+295          * Recompute the width and the height of the text box.
+296          * Updates the array {@link JXG.Text#size} with pixel values.
+297          * The result may differ from browser to browser
+298          * by some pixels.
+299          * In canvas an old IEs we use a very crude estimation of the dimensions of
+300          * the textbox.
+301          * JSXGraph needs {@link JXG.Text#size} for applying rotations in IE and
+302          * for aligning text.
+303          *
+304          * @return {[type]} [description]
+305          */
+306         updateSize: function () {
+307             var tmp, s, that, node,
+308                 ev_d = Type.evaluate(this.visProp.display);
+309 
+310             if (!Env.isBrowser || this.board.renderer.type === 'no') {
+311                 return this;
+312             }
+313             node = this.rendNode;
+314 
+315             /**
+316              * offsetWidth and offsetHeight seem to be supported for internal vml elements by IE10+ in IE8 mode.
+317              */
+318             if (ev_d === 'html' || this.board.renderer.type === 'vml') {
+319                 if (Type.exists(node.offsetWidth)) {
+320                     that = this;
+321                     window.setTimeout(function () {
+322                         that.size = [node.offsetWidth, node.offsetHeight];
+323                         that.needsUpdate = true;
+324                         that.updateRenderer();
+325                     }, 0);
+326                     // In case, there is non-zero padding or borders
+327                     // the following approach does not longer work.
+328                     // s = [node.offsetWidth, node.offsetHeight];
+329                     // if (s[0] === 0 && s[1] === 0) { // Some browsers need some time to set offsetWidth and offsetHeight
+330                     //     that = this;
+331                     //     window.setTimeout(function () {
+332                     //         that.size = [node.offsetWidth, node.offsetHeight];
+333                     //         that.needsUpdate = true;
+334                     //         that.updateRenderer();
+335                     //     }, 0);
+336                     //     console.log("HERE");
+337                     // } else {
+338                     //     console.log("tHERE");
+339                     //     this.size = s;
+340                     // }
+341                 } else {
+342                     this.size = this.crudeSizeEstimate();
+343                 }
+344             } else if (ev_d === 'internal') {
+345                 if (this.board.renderer.type === 'svg') {
+346                     that = this;
+347                     window.setTimeout(function(){
+348                         try {
+349                             tmp = node.getBBox();
+350                             that.size = [tmp.width, tmp.height];
+351                             that.needsUpdate = true;
+352                             that.updateRenderer();
+353                         } catch (e) {}
+354                     }, 0);
+355                 } else if (this.board.renderer.type === 'canvas') {
+356                     this.size = this.crudeSizeEstimate();
+357                 }
+358             }
+359 
+360             return this;
+361         },
+362 
+363         /**
+364          * A very crude estimation of the dimensions of the textbox in case nothing else is available.
+365          * @returns {Array}
+366          */
+367         crudeSizeEstimate: function () {
+368             var ev_fs = parseFloat(Type.evaluate(this.visProp.fontsize));
+369             return [ev_fs * this.plaintext.length * 0.45, ev_fs * 0.9];
+370         },
+371 
+372         /**
+373          * Decode unicode entities into characters.
+374          * @param {String} string
+375          * @returns {String}
+376          */
+377         utf8_decode : function (string) {
+378             return string.replace(/&#x(\w+);/g, function (m, p1) {
+379                 return String.fromCharCode(parseInt(p1, 16));
+380             });
+381         },
+382 
+383         /**
+384          * Replace _{} by <sub>
+385          * @param {String} te String containing _{}.
+386          * @returns {String} Given string with _{} replaced by <sub>.
+387          */
+388         replaceSub: function (te) {
+389             if (!te.indexOf) {
+390                 return te;
+391             }
+392 
+393             var j,
+394                 i = te.indexOf('_{');
+395 
+396             // the regexp in here are not used for filtering but to provide some kind of sugar for label creation,
+397             // i.e. replacing _{...} with <sub>...</sub>. What is passed would get out anyway.
+398             /*jslint regexp: true*/
+399 
+400             while (i >= 0) {
+401                 te = te.substr(0, i) + te.substr(i).replace(/_\{/, '<sub>');
+402                 j = te.substr(i).indexOf('}');
+403                 if (j >= 0) {
+404                     te = te.substr(0, j) + te.substr(j).replace(/\}/, '</sub>');
+405                 }
+406                 i = te.indexOf('_{');
+407             }
+408 
+409             i = te.indexOf('_');
+410             while (i >= 0) {
+411                 te = te.substr(0, i) + te.substr(i).replace(/_(.?)/, '<sub>$1</sub>');
+412                 i = te.indexOf('_');
+413             }
+414 
+415             return te;
+416         },
+417 
+418         /**
+419          * Replace ^{} by <sup>
+420          * @param {String} te String containing ^{}.
+421          * @returns {String} Given string with ^{} replaced by <sup>.
+422          */
+423         replaceSup: function (te) {
+424             if (!te.indexOf) {
+425                 return te;
+426             }
+427 
+428             var j,
+429                 i = te.indexOf('^{');
+430 
+431             // the regexp in here are not used for filtering but to provide some kind of sugar for label creation,
+432             // i.e. replacing ^{...} with <sup>...</sup>. What is passed would get out anyway.
+433             /*jslint regexp: true*/
+434 
+435             while (i >= 0) {
+436                 te = te.substr(0, i) + te.substr(i).replace(/\^\{/, '<sup>');
+437                 j = te.substr(i).indexOf('}');
+438                 if (j >= 0) {
+439                     te = te.substr(0, j) + te.substr(j).replace(/\}/, '</sup>');
+440                 }
+441                 i = te.indexOf('^{');
+442             }
+443 
+444             i = te.indexOf('^');
+445             while (i >= 0) {
+446                 te = te.substr(0, i) + te.substr(i).replace(/\^(.?)/, '<sup>$1</sup>');
+447                 i = te.indexOf('^');
+448             }
+449 
+450             return te;
+451         },
+452 
+453         /**
+454          * Return the width of the text element.
+455          * @returns {Array} [width, height] in pixel
+456          */
+457         getSize: function () {
+458             return this.size;
+459         },
+460 
+461         /**
+462          * Move the text to new coordinates.
+463          * @param {number} x
+464          * @param {number} y
+465          * @returns {object} reference to the text object.
+466          */
+467         setCoords: function (x, y) {
+468             var coordsAnchor, dx, dy;
+469             if (Type.isArray(x) && x.length > 1) {
+470                 y = x[1];
+471                 x = x[0];
+472             }
+473 
+474             if (Type.evaluate(this.visProp.islabel) && Type.exists(this.element)) {
+475                 coordsAnchor = this.element.getLabelAnchor();
+476                 dx = (x - coordsAnchor.usrCoords[1]) * this.board.unitX;
+477                 dy = -(y - coordsAnchor.usrCoords[2]) * this.board.unitY;
+478 
+479                 this.relativeCoords.setCoordinates(Const.COORDS_BY_SCREEN, [dx, dy]);
+480             } else {
+481                 /*
+482                 this.X = function () {
+483                     return x;
+484                 };
+485 
+486                 this.Y = function () {
+487                     return y;
+488                 };
+489                 */
+490                 this.coords.setCoordinates(Const.COORDS_BY_USER, [x, y]);
+491             }
+492 
+493             // this should be a local update, otherwise there might be problems
+494             // with the tick update routine resulting in orphaned tick labels
+495             this.fullUpdate();
+496 
+497             return this;
+498         },
+499 
+500         /**
+501          * Evaluates the text.
+502          * Then, the update function of the renderer
+503          * is called.
+504          */
+505         update: function (fromParent) {
+506             if (!this.needsUpdate) {
+507                 return this;
+508             }
+509 
+510             this.updateCoords(fromParent);
+511             this.updateText();
+512 
+513             if (Type.evaluate(this.visProp.display) === 'internal') {
+514                 if (Type.isString(this.plaintext)) {
+515                     this.plaintext = this.utf8_decode(this.plaintext);
+516                 }
+517             }
+518 
+519             this.checkForSizeUpdate();
+520             if (this.needsSizeUpdate) {
+521                 this.updateSize();
+522             }
+523 
+524             return this;
+525         },
+526 
+527         /**
+528          * Used to save updateSize() calls.
+529          * Called in JXG.Text.update
+530          * That means this.update() has been called.
+531          * More tests are in JXG.Renderer.updateTextStyle. The latter tests
+532          * are one update off. But this should pose not too many problems, since
+533          * it affects fontSize and cssClass changes.
+534          *
+535          * @private
+536          */
+537         checkForSizeUpdate: function () {
+538             if (this.board.infobox && this.id === this.board.infobox.id) {
+539                 this.needsSizeUpdate = false;
+540             } else {
+541                 // For some magic reason it is more efficient on the iPad to
+542                 // call updateSize() for EVERY text element EVERY time.
+543                 this.needsSizeUpdate = (this.plaintextOld !== this.plaintext);
+544 
+545                 if (this.needsSizeUpdate) {
+546                     this.plaintextOld = this.plaintext;
+547                 }
+548             }
+549 
+550         },
+551 
+552         /**
+553          * The update function of the renderert
+554          * is called.
+555          * @private
+556          */
+557         updateRenderer: function () {
+558             if (//this.board.updateQuality === this.board.BOARD_QUALITY_HIGH &&
+559                 Type.evaluate(this.visProp.autoposition)) {
+560 
+561                 this.setAutoPosition();
+562             }
+563             return this.updateRendererGeneric('updateText');
+564         },
+565 
+566         /**
+567          * Converts shortened math syntax into correct syntax:  3x instead of 3*x or
+568          * (a+b)(3+1) instead of (a+b)*(3+1).
+569          *
+570          * @private
+571          * @param{String} expr Math term
+572          * @returns {string} expanded String
+573          */
+574         expandShortMath: function(expr) {
+575             var re = /([\)0-9\.])\s*([\(a-zA-Z_])/g;
+576             return expr.replace(re, '$1*$2');
+577         },
+578 
+579         /**
+580          * Converts the GEONExT syntax of the <value> terms into JavaScript.
+581          * Also, all Objects whose name appears in the term are searched and
+582          * the text is added as child to these objects.
+583          *
+584          * @param{String} contentStr String to be parsed
+585          * @param{Boolean} [expand] Optional flag if shortened math syntax is allowed (e.g. 3x instead of 3*x).
+586          * @param{Boolean} [avoidGeonext2JS] Optional flag if geonext2JS should be called. For backwards compatibility
+587          * this has to be set explicitely to true.
+588          * @private
+589          * @see JXG.GeonextParser.geonext2JS.
+590          */
+591         generateTerm: function (contentStr, expand, avoidGeonext2JS) {
+592             var res, term, i, j,
+593                 plaintext = '""';
+594 
+595             // revert possible jc replacement
+596             contentStr = contentStr || '';
+597             contentStr = contentStr.replace(/\r/g, '');
+598             contentStr = contentStr.replace(/\n/g, '');
+599             contentStr = contentStr.replace(/"/g, '\'');
+600             contentStr = contentStr.replace(/'/g, "\\'");
+601 
+602             contentStr = contentStr.replace(/&arc;/g, '∠');
+603             contentStr = contentStr.replace(/<arc\s*\/>/g, '∠');
+604             contentStr = contentStr.replace(/<arc\s*\/>/g, '∠');
+605             contentStr = contentStr.replace(/<sqrt\s*\/>/g, '√');
+606 
+607             contentStr = contentStr.replace(/<value>/g, '<value>');
+608             contentStr = contentStr.replace(/<\/value>/g, '</value>');
+609 
+610             // Convert GEONExT syntax into  JavaScript syntax
+611             i = contentStr.indexOf('<value>');
+612             j = contentStr.indexOf('</value>');
+613             if (i >= 0) {
+614                 while (i >= 0) {
+615                     plaintext += ' + "' + this.replaceSub(this.replaceSup(contentStr.slice(0, i))) + '"';
+616                     term = contentStr.slice(i + 7, j);
+617                     term = term.replace(/\s+/g, ''); // Remove all whitespace
+618                     if (expand === true) {
+619                         term = this.expandShortMath(term);
+620                     }
+621                     if (avoidGeonext2JS) {
+622                         res = term;
+623                     } else {
+624                         res = GeonextParser.geonext2JS(term, this.board);
+625                     }
+626                     res = res.replace(/\\"/g, "'");
+627                     res = res.replace(/\\'/g, "'");
+628 
+629                     // GEONExT-Hack: apply rounding once only.
+630                     if (res.indexOf('toFixed') < 0) {
+631                         // output of a value tag
+632                         if (Type.isNumber((Type.bind(this.board.jc.snippet(res, true, '', false), this))())) {
+633                             // may also be a string
+634                             plaintext += '+(' + res + ').toFixed(' + (Type.evaluate(this.visProp.digits)) + ')';
+635                         } else {
+636                             plaintext += '+(' + res + ')';
+637                         }
+638                     } else {
+639                         plaintext += '+(' + res + ')';
+640                     }
+641 
+642                     contentStr = contentStr.slice(j + 8);
+643                     i = contentStr.indexOf('<value>');
+644                     j = contentStr.indexOf('</value>');
+645                 }
+646             }
+647 
+648             plaintext += ' + "' + this.replaceSub(this.replaceSup(contentStr)) + '"';
+649             plaintext = this.convertGeonext2CSS(plaintext);
+650 
+651             // This should replace &pi; by π
+652             plaintext = plaintext.replace(/&/g, '&');
+653             plaintext = plaintext.replace(/"/g, "'");
+654 
+655             return plaintext;
+656         },
+657 
+658         /**
+659          * Converts the GEONExT tags <overline> and <arrow> to
+660          * HTML span tags with proper CSS formating.
+661          * @private
+662          * @see JXG.Text.generateTerm @see JXG.Text._setText
+663          */
+664         convertGeonext2CSS: function (s) {
+665             if (Type.isString(s)) {
+666                 s = s.replace(/<overline>/g, '<span style=text-decoration:overline>');
+667                 s = s.replace(/<overline>/g, '<span style=text-decoration:overline>');
+668                 s = s.replace(/<\/overline>/g, '</span>');
+669                 s = s.replace(/<\/overline>/g, '</span>');
+670                 s = s.replace(/<arrow>/g, '<span style=text-decoration:overline>');
+671                 s = s.replace(/<arrow>/g, '<span style=text-decoration:overline>');
+672                 s = s.replace(/<\/arrow>/g, '</span>');
+673                 s = s.replace(/<\/arrow>/g, '</span>');
+674             }
+675 
+676             return s;
+677         },
+678 
+679         /**
+680          * Finds dependencies in a given term and notifies the parents by adding the
+681          * dependent object to the found objects child elements.
+682          * @param {String} content String containing dependencies for the given object.
+683          * @private
+684          */
+685         notifyParents: function (content) {
+686             var search,
+687                 res = null;
+688 
+689             // revert possible jc replacement
+690             content = content.replace(/<value>/g, '<value>');
+691             content = content.replace(/<\/value>/g, '</value>');
+692 
+693             do {
+694                 search = /<value>([\w\s\*\/\^\-\+\(\)\[\],<>=!]+)<\/value>/;
+695                 res = search.exec(content);
+696 
+697                 if (res !== null) {
+698                     GeonextParser.findDependencies(this, res[1], this.board);
+699                     content = content.substr(res.index);
+700                     content = content.replace(search, '');
+701                 }
+702             } while (res !== null);
+703 
+704             return this;
+705         },
+706 
+707         // documented in element.js
+708         getParents: function () {
+709             var p;
+710             if (this.relativeCoords !== undefined) { // Texts with anchor elements, excluding labels
+711                 p = [this.relativeCoords.usrCoords[1], this.relativeCoords.usrCoords[2], this.orgText];
+712             } else {                                 // Other texts
+713                 p = [this.Z(), this.X(), this.Y(), this.orgText];
+714             }
+715 
+716             if (this.parents.length !== 0) {
+717                 p = this.parents;
+718             }
+719 
+720             return p;
+721         },
+722 
+723         bounds: function () {
+724             var c = this.coords.usrCoords;
+725 
+726             if (Type.evaluate(this.visProp.islabel) || this.board.unitY === 0 || this.board.unitX === 0) {
+727                 return [0, 0, 0, 0];
+728             } else {
+729                 return [c[1], c[2] + this.size[1] / this.board.unitY, c[1] + this.size[0] / this.board.unitX, c[2]];
+730             }
+731         },
+732 
+733         getAnchorX: function() {
+734             var a = Type.evaluate(this.visProp.anchorx);
+735             if (a == 'auto') {
+736                 switch (this.visProp.position) {
+737                     case 'top':
+738                     case 'bot':
+739                         return 'middle';
+740                     case 'rt':
+741                     case 'lrt':
+742                     case 'urt':
+743                         return 'left';
+744                     case 'lft':
+745                     case 'llft':
+746                     case 'ulft':
+747                     default:
+748                         return 'right';
+749                 }
+750             }
+751             return a;
+752         },
+753 
+754         getAnchorY: function() {
+755             var a = Type.evaluate(this.visProp.anchory);
+756             if (a == 'auto') {
+757                 switch (this.visProp.position) {
+758                     case 'top':
+759                     case 'ulft':
+760                     case 'urt':
+761                         return 'bottom';
+762                     case 'bot':
+763                     case 'lrt':
+764                     case 'llft':
+765                         return 'top';
+766                     case 'rt':
+767                     case 'lft':
+768                     default:
+769                         return 'middle';
+770                 }
+771             }
+772             return a;
+773         },
+774 
+775         /**
+776          * Computes the number of overlaps of a box of w pixels width, h pixels height
+777          * and center (x, y)
+778          *
+779          * @private
+780          * @param  {Number} x x-coordinate of the center (screen coordinates)
+781          * @param  {Number} y y-coordinate of the center (screen coordinates)
+782          * @param  {Number} w width of the box in pixel
+783          * @param  {Number} h width of the box in pixel
+784          * @return {Number}   Number of overlapping elements
+785          */
+786         getNumberofConflicts: function(x, y, w, h) {
+787             var count = 0,
+788 			    i, obj, le,
+789                 savePointPrecision;
+790 
+791             // Set the precision of hasPoint to half the max if label isn't too long
+792             savePointPrecision = this.board.options.precision.hasPoint;
+793             this.board.options.precision.hasPoint = Math.max(w, h) * 0.5;
+794 			for (i = 0, le = this.board.objectsList.length; i < le; i++) {
+795 				obj = this.board.objectsList[i];
+796 				if (obj.visPropCalc.visible &&
+797                     obj.elType != 'axis' &&
+798                     obj.elType != 'ticks' &&
+799                     obj != this.board.infobox &&
+800                     obj !== this &&
+801                     obj.hasPoint(x, y)) {
+802                         // console.log("Hit", obj.elType, obj.id);
+803 						count++;
+804 				}
+805 			}
+806             this.board.options.precision.hasPoint = savePointPrecision;
+807 
+808 			return count;
+809         },
+810 
+811         /**
+812          * Sets the offset of a label element to the position with the least number
+813          * of overlaps with other elements, while retaining the distance to its
+814          * anchor element. Twelve different angles are possible.
+815          *
+816          * @returns {JXG.Text} Reference to the text object.
+817          */
+818         setAutoPosition: function() {
+819             var x, y, cx, cy,
+820                 anchorCoords, anchorX, anchorY,
+821                 w = this.size[0],
+822                 h = this.size[1],
+823                 start_angle, angle,
+824                 min_conflicts = Infinity,
+825                 min_angle,
+826                 conflicts, offset, r,
+827                 num_positions = 12,
+828                 step = 2 * Math.PI / num_positions,
+829                 j, dx, dy, co, si;
+830 
+831             if (this === this.board.infobox || !Type.evaluate(this.visProp.islabel) || !this.element) {
+832                 return;
+833             }
+834 
+835             anchorX = Type.evaluate(this.visProp.anchorx);
+836             anchorY = Type.evaluate(this.visProp.anchory);
+837             offset = Type.evaluate(this.visProp.offset);
+838             anchorCoords = this.element.getLabelAnchor();
+839             cx = anchorCoords.scrCoords[1];
+840             cy = anchorCoords.scrCoords[2];
+841 
+842             // Set dx, dy as the relative position of the center of the label
+843             // to its anchor element ignoring anchorx and anchory.
+844             dx = offset[0];
+845             dy = offset[1];
+846 
+847             conflicts = this.getNumberofConflicts(cx + dx, cy - dy, w, h);
+848             if (conflicts === 0) {
+849                 return this;
+850             }
+851 
+852             r = Geometry.distance([0, 0], [dx, dy], 2);
+853 
+854             start_angle = Math.atan2(dy, dx);
+855             min_angle = start_angle;
+856 
+857             for (j = 0, angle = start_angle; j < num_positions; j++) {
+858                 co = Math.cos(angle);
+859                 si = Math.sin(angle);
+860                 x = cx + r * co;
+861                 if (co < -0.2) {
+862                     x -= w * 0.5;
+863                 } else if (co > 0.2) {
+864                     x += w * 0.5;
+865                 }
+866 
+867                 y = cy - r * si;
+868                 // if (si > -0.2 && si < 0.0) {
+869                 //         y += h * 0.5;
+870                 // } else if (si >= 0.0 && si < 0.2) {
+871                 //     y -= h * 0.5;
+872                 // }
+873                 // if (si < -0.2) {
+874                 //     y += h * 0.5;
+875                 // } else if (si > 0.2) {
+876                 //     y -= h * 0.5;
+877                 // }
+878 
+879                 conflicts = this.getNumberofConflicts(x, y, w, h);
+880                 if (conflicts < min_conflicts) {
+881                     min_conflicts = conflicts;
+882                     min_angle = angle;
+883                 }
+884                 if (min_conflicts === 0) {
+885                     break;
+886                 }
+887                 angle += step;
+888             }
+889 
+890             r = Geometry.distance([0, 0], offset, 2);
+891             co = Math.cos(min_angle);
+892             si = Math.sin(min_angle);
+893             this.visProp.offset = [r * co, r * si];
+894 
+895             if (co < -0.2) {
+896                 this.visProp.anchorx = 'right';
+897             } else if (co > 0.2) {
+898                 this.visProp.anchorx = 'left';
+899             } else {
+900                 this.visProp.anchorx = 'middle';
+901             }
+902             // if (si < -0.2) {
+903             //     this.visProp.anchory = 'top';
+904             // } else if (si > 0.2) {
+905             //     this.visProp.anchory = 'bottom';
+906             // } else {
+907             //     this.visProp.anchory = 'middle';
+908             // }
+909 
+910             return this;
+911         }
+912     });
+913 
+914     /**
+915      * @class Construct and handle texts.
+916      *
+917      * The coordinates can be relative to the coordinates of an element
+918      * given in {@link JXG.Options#text.anchor}.
+919      *
+920      * MathJaX, HTML and GEONExT syntax can be handled.
+921      * @pseudo
+922      * @description
+923      * @name Text
+924      * @augments JXG.Text
+925      * @constructor
+926      * @type JXG.Text
+927      *
+928      * @param {number,function_number,function_number,function_String,function} z_,x,y,str Parent elements for text elements.
+929      *                     <p>
+930      *   Parent elements can be two or three elements of type number, a string containing a GEONE<sub>x</sub>T
+931      *   constraint, or a function which takes no parameter and returns a number. Every parent element determines one coordinate. If a coordinate is
+932      *   given by a number, the number determines the initial position of a free text. If given by a string or a function that coordinate will be constrained
+933      *   that means the user won't be able to change the texts's position directly by mouse because it will be calculated automatically depending on the string
+934      *   or the function's return value. If two parent elements are given the coordinates will be interpreted as 2D affine Euclidean coordinates, if three such
+935      *   parent elements are given they will be interpreted as homogeneous coordinates.
+936      *                     <p>
+937      *                     The text to display may be given as string or as function returning a string.
+938      *
+939      * There is the attribute 'display' which takes the values 'html' or 'internal'. In case of 'html' a HTML division tag is created to display
+940      * the text. In this case it is also possible to use ASCIIMathML. Incase of 'internal', a SVG or VML text element is used to display the text.
+941      * @see JXG.Text
+942      * @example
+943      * // Create a fixed text at position [0,1].
+944      *   var t1 = board.create('text',[0,1,"Hello World"]);
+945      * </pre><div class="jxgbox" id="JXG896013aa-f24e-4e83-ad50-7bc7df23f6b7" style="width: 300px; height: 300px;"></div>
+946      * <script type="text/javascript">
+947      *   var t1_board = JXG.JSXGraph.initBoard('JXG896013aa-f24e-4e83-ad50-7bc7df23f6b7', {boundingbox: [-3, 6, 5, -3], axis: true, showcopyright: false, shownavigation: false});
+948      *   var t1 = t1_board.create('text',[0,1,"Hello World"]);
+949      * </script><pre>
+950      * @example
+951      * // Create a variable text at a variable position.
+952      *   var s = board.create('slider',[[0,4],[3,4],[-2,0,2]]);
+953      *   var graph = board.create('text',
+954      *                        [function(x){ return s.Value();}, 1,
+955      *                         function(){return "The value of s is"+JXG.toFixed(s.Value(), 2);}
+956      *                        ]
+957      *                     );
+958      * </pre><div class="jxgbox" id="JXG5441da79-a48d-48e8-9e53-75594c384a1c" style="width: 300px; height: 300px;"></div>
+959      * <script type="text/javascript">
+960      *   var t2_board = JXG.JSXGraph.initBoard('JXG5441da79-a48d-48e8-9e53-75594c384a1c', {boundingbox: [-3, 6, 5, -3], axis: true, showcopyright: false, shownavigation: false});
+961      *   var s = t2_board.create('slider',[[0,4],[3,4],[-2,0,2]]);
+962      *   var t2 = t2_board.create('text',[function(x){ return s.Value();}, 1, function(){return "The value of s is "+JXG.toFixed(s.Value(), 2);}]);
+963      * </script><pre>
+964      * @example
+965      * // Create a text bound to the point A
+966      * var p = board.create('point',[0, 1]),
+967      *     t = board.create('text',[0, -1,"Hello World"], {anchor: p});
+968      *
+969      * </pre><div class="jxgbox" id="JXGff5a64b2-2b9a-11e5-8dd9-901b0e1b8723" style="width: 300px; height: 300px;"></div>
+970      * <script type="text/javascript">
+971      *     (function() {
+972      *         var board = JXG.JSXGraph.initBoard('JXGff5a64b2-2b9a-11e5-8dd9-901b0e1b8723',
+973      *             {boundingbox: [-8, 8, 8,-8], axis: true, showcopyright: false, shownavigation: false});
+974      *     var p = board.create('point',[0, 1]),
+975      *         t = board.create('text',[0, -1,"Hello World"], {anchor: p});
+976      *
+977      *     })();
+978      *
+979      * </script><pre>
+980      *
+981      */
+982     JXG.createText = function (board, parents, attributes) {
+983         var t,
+984             attr = Type.copyAttributes(attributes, board.options, 'text'),
+985             coords = parents.slice(0, -1),
+986             content = parents[parents.length - 1];
+987 
+988         // downwards compatibility
+989         attr.anchor = attr.parent || attr.anchor;
+990         t = CoordsElement.create(JXG.Text, board, coords, attr, content);
+991 
+992         if (!t) {
+993             throw new Error("JSXGraph: Can't create text with parent types '" +
+994                     (typeof parents[0]) + "' and '" + (typeof parents[1]) + "'." +
+995                     "\nPossible parent types: [x,y], [z,x,y], [element,transformation]");
+996         }
+997 
+998         if (attr.rotate !== 0 && attr.display === 'internal') { // This is the default value, i.e. no rotation
+999             t.addRotation(attr.rotate);
+1000         }
+1001 
+1002         return t;
+1003     };
+1004 
+1005     JXG.registerElement('text', JXG.createText);
+1006 
+1007     /**
+1008      * @class Labels are text objects tied to other elements like points, lines and curves.
+1009      * Labels are handled internally by JSXGraph, only. There is NO constructor "board.create('label', ...)".
+1010      *
+1011      * @pseudo
+1012      * @description
+1013      * @name Label
+1014      * @augments JXG.Text
+1015      * @constructor
+1016      * @type JXG.Text
+1017      */
+1018     //  See element.js#createLabel
+1019 
+1020     /**
+1021      * [[x,y], [w px, h px], [range]
+1022      */
+1023     JXG.createHTMLSlider = function (board, parents, attributes) {
+1024         var t, par,
+1025             attr = Type.copyAttributes(attributes, board.options, 'htmlslider');
+1026 
+1027         if (parents.length !== 2 || parents[0].length !== 2 || parents[1].length !== 3) {
+1028             throw new Error("JSXGraph: Can't create htmlslider with parent types '" +
+1029                 (typeof parents[0]) + "' and '" + (typeof parents[1]) + "'." +
+1030                 "\nPossible parents are: [[x,y], [min, start, max]]");
+1031         }
+1032 
+1033         // backwards compatibility
+1034         attr.anchor = attr.parent || attr.anchor;
+1035         attr.fixed = attr.fixed || true;
+1036 
+1037         par = [parents[0][0], parents[0][1],
+1038             '<form style="display:inline">' +
+1039             '<input type="range" /><span></span><input type="text" />' +
+1040             '</form>'];
+1041 
+1042         t = JXG.createText(board, par, attr);
+1043         t.type = Type.OBJECT_TYPE_HTMLSLIDER;
+1044 
+1045         t.rendNodeForm = t.rendNode.childNodes[0];
+1046 
+1047         t.rendNodeRange = t.rendNodeForm.childNodes[0];
+1048         t.rendNodeRange.min = parents[1][0];
+1049         t.rendNodeRange.max = parents[1][2];
+1050         t.rendNodeRange.step = attr.step;
+1051         t.rendNodeRange.value = parents[1][1];
+1052 
+1053         t.rendNodeLabel = t.rendNodeForm.childNodes[1];
+1054         t.rendNodeLabel.id = t.rendNode.id + '_label';
+1055 
+1056         if (attr.withlabel) {
+1057             t.rendNodeLabel.innerHTML = t.name + '=';
+1058         }
+1059 
+1060         t.rendNodeOut = t.rendNodeForm.childNodes[2];
+1061         t.rendNodeOut.value = parents[1][1];
+1062 
+1063         try {
+1064             t.rendNodeForm.id = t.rendNode.id + '_form';
+1065             t.rendNodeRange.id = t.rendNode.id + '_range';
+1066             t.rendNodeOut.id = t.rendNode.id + '_out';
+1067 	} catch (e) {
+1068             JXG.debug(e);
+1069         }
+1070 
+1071         t.rendNodeRange.style.width = attr.widthrange + 'px';
+1072         t.rendNodeRange.style.verticalAlign = 'middle';
+1073         t.rendNodeOut.style.width = attr.widthout + 'px';
+1074 
+1075         t._val = parents[1][1];
+1076 
+1077         if (JXG.supportsVML()) {
+1078             /*
+1079             * OnChange event is used for IE browsers
+1080             * The range element is supported since IE10
+1081             */
+1082             Env.addEvent(t.rendNodeForm, 'change', priv.HTMLSliderInputEventHandler, t);
+1083         } else {
+1084             /*
+1085             * OnInput event is used for non-IE browsers
+1086             */
+1087             Env.addEvent(t.rendNodeForm, 'input', priv.HTMLSliderInputEventHandler, t);
+1088         }
+1089 
+1090         t.Value = function () {
+1091             return this._val;
+1092         };
+1093 
+1094         return t;
+1095     };
+1096 
+1097     JXG.registerElement('htmlslider', JXG.createHTMLSlider);
+1098 
+1099     return {
+1100         Text: JXG.Text,
+1101         createText: JXG.createText,
+1102         createHTMLSlider: JXG.createHTMLSlider
+1103     };
+1104 });
+1105 

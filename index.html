@@ -21,12 +21,10 @@
   })();
 </script>
 
-    
 
     <link rel="stylesheet" type="text/css" href="jsxgraph.css" />
-    <script type="text/javascript" src="loadjsxgraph.js"></script>
     <script type="text/javascript" src="jsxgraphcore.js"></script>
-  
+    
   </head>
   <body>
 
@@ -38,97 +36,13 @@
     \[f_i=\sum_1^2\]
 
 
-    <div id='ww1' class='jxgbox' style="width: 600px; height: 300px; display: block; margin: auto;"></div>
+
+
+  
     <script type='text/javascript'>
-      JXG.Options.text.useMathJax = true;
-      board = JXG.JSXGraph.initBoard("ww1", {
-        originX: 200,
-        originY: 250,
-        unitX: 20,
-        unitY: 20,
-        axis: true,
-        showNavigation: false,
-        showCopyright: false,
-      });
-      theSlider = board.create(
-        "slider",
-        [
-          [1, 5],
-          [10, 5],
-          [-5, 3, 5],
-        ],
-        { snapWidth: 0.1 }
-      );
-      w = board.create(
-        "slider",
-        [
-          [1, 3],
-          [10, 3],
-          [0, 0.5, 1],
-        ],
-        { snapWidth: 0.1 }
-      );
-      board.create("functiongraph", [
-        function (t) {
-          return Math.pow(Math.E, w.Value()*t - theSlider.Value());
-        },
-      ]);
-      board.create('text', [
-        1,
-        6,
-        function () {
-          return '\\(f(x) = e^{'+ w.Value() + 'x' + '-' + theSlider.Value() + '}\\)';
-        },
-      ]);
-    </script>
-
-
-
-
-
-    <div id='jxgbox' class='jxgbox' style="width: 600px; height: 300px; display: block; margin: auto;"></div>
-    <script type='text/javascript'>
-        var brd, k;
-        JXG.Options.text.useMathJax = true;
-        brd = JXG.JSXGraph.initBoard('jxgbox', {boundingbox:[-5,20,5,-5], axis:true, showNavigation:false, showCopyright:false});
-        k = brd.create('slider',[[-4,-2],[3,-2],[-5,0.5,5]],{name:'n', snapWidth:1});
-        brd.create('functiongraph', [function(t) {return Math.pow(Math.E,t*k.Value());}],{strokeColor:'green'});
-        brd.create('text',[-4,15,
-          function() { 
-            var temp;
-            if (k.Value() == 1) {
-              temp = '\\[f(x) = e^x \\]'; 
-            } else {
-              temp = '\\[f(x) = e^{' + k.Value() + 'x}\\]';
-            }
-           return temp;
-         }], {fontSize:12});
-        brd.update();
-    </script> 
-
-
-
-
-    <div id='jxgboxw' class='jxgbox' style="width: 600px; height: 300px; display: block; margin: auto;"></div>
-    <script type='text/javascript'>
-        var brd, k;
         JXG.Options.text.useMathJax = true;
         JXG.Options.text.fontSize = 16;
         JXG.Options = JXG.merge(JXG.Options, {showNavigation: false,point:{face:'o', size:1, color:'#000000'}});
-        brd = JXG.JSXGraph.initBoard('jxgboxw', {boundingbox:[-5,20,5,-5], axis:true, showNavigation:false, showCopyright:false});
-        k = brd.create('slider',[[-4,-2],[3,-2],[-5,0.5,5]],{name:'n', snapWidth:1});
-        brd.create('functiongraph', [function(t) {return Math.pow(Math.E,t*k.Value());}],{strokeColor:'green'});
-        brd.create('text',[-4,15,
-          function() { 
-            var temp;
-            if (k.Value() == 1) {
-              temp = '\\[f(x) = e^x \\]'; 
-            } else {
-              temp = '\\[f(x) = e^{' + k.Value() + 'x}\\]';
-            }
-           return temp;
-         }], {fontSize:12});
-        brd.update();
     </script> 
 
 
@@ -141,41 +55,45 @@
 
 
 
-    <h1>Título</h1>
+    <h1>Elipse</h1>
 
     <div id="ww" class="jxgbox" style="width: 700px; height: 380px; display: block; margin: auto;"></div>
 
     <script type="text/javascript">
+    JXG.Options.axis.ticks.majorHeight = 60;
+JXG.Options.axis.ticks.insertTicks = false;
+JXG.Options.axis.ticks.ticksDistance = 100;
       var board = JXG.JSXGraph.initBoard("ww", {
         originX: 50,
         originY: 250,
         unitX: 50,
         unitY: 50,
         axis: true,
+        showFullscreen: true,
+        zoom: {factorX: 1.25, factorY: 1.25, wheel: true,needshift: true, eps: 0.1},
+        showNavigation: false,
+        showCopyright: false,
         defaultAxes: {y: { ticks: {visible: true, majorHeight: 5 }},x: { ticks: { visible: true, majorHeight: 5 }}},
-  
       });
   
-      
-
-  
-      f1 = board.create("point", [2,-1], { name: "\\(F_1\\)" , fillColor:'#306754',label:{autoPosition: true, offset:[10, 10]}});
-      f2 = board.create("point", [9,3], { name: "\\(F_2\\)" , label:{autoPosition: true, offset:[10, 10]}});
+        
+      f1 = board.create("point", [2,-1], { name: "\\(F_1\\)" , fillColor:'#306754',label:{autoPosition: true, offset:[0, -20]}});
+      f2 = board.create("point", [8,3], { name: "\\(F_2\\)" , label:{autoPosition: true, offset:[-5, -20]}});
       var l1 = board.create('line', [f1, f2],{strokeColor:'green',strokewidth:1});
-      var mp1 = board.create('midpoint', [f1, f2], { name: "\\(O\\)", label:{autoPosition: true, offset:[10, 10]} });
+      var mp1 = board.create('midpoint', [f1, f2], { name: "\\(O\\)", label:{autoPosition: true, offset:[10,-10]}});
       var vec = board.create('arrow', [[0,0], mp1],{straightFirst:true, straightLast:true, strokeWidth:1, dash:2});
       var perp1 = board.create('perpendicular', [l1, mp1] ,{strokeColor:'red',strokewidth:0});
 
 
-      ew=board.create("ellipse", [f1, f2, 10],{strokeColor:'#000000',strokewidth:2});
+      ew=board.create("ellipse", [f1, f2, 9],{strokeColor:'#000000',strokewidth:2});
 
       
        
-      var b1 = board.create('intersection', [ew, perp1, 0], { name: "\\(B_1\\)", label:{autoPosition: true, offset:[10, 10]} });
-      var b2 = board.create('intersection', [ew, perp1, 1], { name: "\\(B_2\\)", label:{autoPosition: true, offset:[10, 10]} });
+      var b1 = board.create('intersection', [ew, perp1, 0], { name: "\\(B_1\\)", label:{offset:[-15, -20]} });
+      var b2 = board.create('intersection', [ew, perp1, 1], { name: "\\(B_2\\)", label:{offset:[5, -20]} });
 
-      var c1 = board.create('intersection', [ew, l1, 0], { name: "\\(V_1\\)", label:{autoPosition: Boolean, offset:[10, 10]} });
-      var c2 = board.create('intersection', [ew, l1, 1], { name: "\\(V_2\\)", label:{autoPosition: true, offset:[10, 10]} });
+      var c1 = board.create('intersection', [ew, l1, 0], { name: "\\(V_1\\)", label:{offset:[15, -10]} });
+      var c2 = board.create('intersection', [ew, l1, 1], { name: "\\(V_2\\)", label:{offset:[-30, 5]} });
 
 
 
@@ -184,15 +102,15 @@
       
       
 
-      ewg = board.create("glider", [2, 2, ew], { name: "\\(\\mathcal{L}_2\\)", label:{autoPosition: true, offset:[10, 10]} });
+      ewg = board.create("glider", [2, 2, ew], { name: "\\(P\\)", label:{position: "rt", offset:[-20, 20]} });
 
       c3 = board.create('circle', [mp1, function() { return mp1.Dist(c1)*mp1.Dist(c1)/mp1.Dist(f1); }],{strokeColor:'red',strokewidth:0});
 
       var d1 = board.create('intersection', [c3, l1, 0], { name: ""});
       var d2 = board.create('intersection', [c3, l1, 1], { name: ""});
 
-      var perp2 = board.create('perpendicular', [l1, d1],{strokeColor:'#256552',strokewidth:1});
-      var perp3 = board.create('perpendicular', [l1, d2],{strokeColor:'#256552',strokewidth:1,name:'\\(\\mathcal{L}_d\\)', withLabel: true});
+      var perp2 = board.create('perpendicular', [l1, d1],{strokeColor:'#256552',strokewidth:1,name:'\\(\\mathcal{L}_1\\)', withLabel: true, label:{offset:[-30, 5],position:"lft"}});
+      var perp3 = board.create('perpendicular', [l1, d2],{strokeColor:'#256552',strokewidth:1,name:'\\(\\mathcal{L}_1\\)', withLabel: true, label:{offset:[10, 10],position:"lft"}});
 
 
       var w = board.create("tangent", [ewg],{strokeColor:'#222200',strokewidth:1});
@@ -202,9 +120,169 @@
     </script>
 
 
+\[\mathcal{E}: y^2=4px\]
+\[\mathcal{L}_1: y=\frac{a^2}{c}\]
 
-\(B_1=A_1\)
 
+<h1>Hipérbola</h1>
+
+<div id="hiperbola" class="jxgbox" style="width: 700px; height: 450px; display: block; margin: auto;"></div>
+
+<script type="text/javascript">
+JXG.Options.axis.ticks.majorHeight = 60;
+JXG.Options.axis.ticks.insertTicks = false;
+JXG.Options.axis.ticks.ticksDistance = 100;
+  var board = JXG.JSXGraph.initBoard("hiperbola", {
+    originX: 50,
+    originY: 250,
+    unitX: 50,
+    unitY: 50,
+    axis: true,
+    showFullscreen: true,
+    zoom: {factorX: 1.25, factorY: 1.25, wheel: true,needshift: true, eps: 0.1},
+    showNavigation: false,
+    showCopyright: false,
+    defaultAxes: {y: { ticks: {visible: true, majorHeight: 5 }},x: { ticks: { visible: true, majorHeight: 5 }}},
+  });
+
+    
+  f1 = board.create("point", [2,-1], { name: "\\(F_1\\)" , fillColor:'#306754',label:{autoPosition: true, offset:[0, -20]}});
+  f2 = board.create("point", [8,3], { name: "\\(F_2\\)" , label:{autoPosition: true, offset:[-5, 20]}});
+
+  var l1 = board.create('line', [f1, f2],{strokeColor:'green',strokewidth:1});
+  var mp1 = board.create('midpoint', [f1, f2], { name: "\\(O\\)", label:{autoPosition: true, offset:[0,-15]}});
+  var vec = board.create('arrow', [[0,0], mp1],{straightFirst:true, straightLast:true, strokeWidth:1, dash:2});
+  var perp1 = board.create('perpendicular', [l1, mp1] ,{strokeColor:'red',strokewidth:0});
+
+
+  ew=board.create("hyperbola", [f1, f2, 5.5],{strokeColor:'#000000',strokewidth:2});
+
+  ewg = board.create("glider", [10.21, 1, ew], { name: "\\(P\\)", label:{offset:[10, 10]} });
+  var w = board.create("tangent", [ewg],{strokeColor:'#222200',strokewidth:1});
+   
+
+
+  cc1 = board.create('circle', [mp1, f1],{strokeColor:'red',strokewidth:1,dash:1});
+//
+  var b1 = board.create('intersection', [ew, perp1, 0], { name: "\\(B_1\\)", label:{offset:[-15, -20]} });
+  var b2 = board.create('intersection', [ew, perp1, 1], { name: "\\(B_2\\)", label:{offset:[5, -20]} });
+//
+  var c1 = board.create('intersection', [ew, l1, 0], { name: "\\(V_1\\)", label:{offset:[15, -10]} });
+  var c2 = board.create('intersection', [ew, l1, 1], { name: "\\(V_2\\)", label:{offset:[-30, 5]} });
+
+  var perp2 = board.create('perpendicular', [l1, c1] ,{strokeColor:'red',strokewidth:0});
+  var perp3 = board.create('perpendicular', [l1, c2] ,{strokeColor:'red',strokewidth:0});
+
+  var r1 = board.create('intersection', [cc1, perp2, 0], { name: "", label:{offset:[-15, -20]} });
+  var r2 = board.create('intersection', [cc1, perp2, 1], { name: "", label:{offset:[5, -20]} });
+
+  var s1 = board.create('intersection', [cc1, perp3, 0], { name: "", label:{offset:[-15, -20]} });
+  var s2 = board.create('intersection', [cc1, perp3, 1], { name: "", label:{offset:[5, -20]} });
+
+  var asintota1 = board.create('line', [s2, r1],{strokeColor:'green',strokewidth:1,dash:1});  
+  var asintota1 = board.create('line', [s1, r2],{strokeColor:'green',strokewidth:1,dash:1});
+
+
+  var segmento1 = board.create('segment', [s1, s2],{strokeColor:'green',strokewidth:1});
+  var segmento2 = board.create('segment', [r1, r2],{strokeColor:'green',strokewidth:1});
+
+  
+  var recto1 = board.create('perpendicular', [l1, f1] ,{strokeColor:'red',strokewidth:0});
+  var recto2 = board.create('perpendicular', [l1, f2] ,{strokeColor:'red',strokewidth:0});
+
+var recto_s = board.create('segment', [board.create('intersection', [ew, recto1, 0], {name: ""}), board.create('intersection', [ew, recto1, 1], {name: ""})],{strokeColor:'green',strokewidth:1});
+var recto_s = board.create('segment', [board.create('intersection', [ew, recto2, 0], {name: ""}), board.create('intersection', [ew, recto2, 1], {name: ""})],{strokeColor:'green',strokewidth:1});
+
+  var s1 = board.create('segment', [b1, b2],{strokeColor:'green',strokewidth:1});
+  var s1 = board.create('segment', [b1, f2],{straightFirst:true, straightLast:true, strokeWidth:1, dash:1});
+  
+  
+
+
+  c3 = board.create('circle', [mp1, function() { return mp1.Dist(c1)*mp1.Dist(c1)/mp1.Dist(f1); }],{strokeColor:'red',strokewidth:0});
+
+  var d1 = board.create('intersection', [c3, l1, 0], { name: ""});
+  var d2 = board.create('intersection', [c3, l1, 1], { name: ""});
+
+  var perp2 = board.create('perpendicular', [l1, d1],{strokeColor:'#256552',strokewidth:1,name:'\\(\\mathcal{L}_1\\)', withLabel: true, label:{offset:[-30, 5],position:"lft"}});
+  var perp3 = board.create('perpendicular', [l1, d2],{strokeColor:'#256552',strokewidth:1,name:'\\(\\mathcal{L}_1\\)', withLabel: true, label:{offset:[10, 10],position:"lft"}});
+
+  
+  var pol2 = board.create('polygon', [f1, ewg, f2],{hasInnerPoints: true});
+  var t = board.create('text', [11, 0.2, function() { return pol2.Perimeter().toFixed(3); }]);
+</script>
+
+
+
+<h1>Parábola</h1>
+
+<div id="wwwww" class="jxgbox" style="width: 700px; height: 450px; display: block; margin: auto;"></div>
+
+<script type="text/javascript">
+JXG.Options.axis.ticks.majorHeight = 60;
+JXG.Options.axis.ticks.insertTicks = false;
+JXG.Options.axis.ticks.ticksDistance = 100;
+  var board = JXG.JSXGraph.initBoard("wwwww", {
+    originX: 50,
+    originY: 250,
+    unitX: 50,
+    unitY: 50,
+    axis: true,
+    showFullscreen: true,
+    zoom: {factorX: 1.25, factorY: 1.25, wheel: true,needshift: true, eps: 0.1},
+    showNavigation: false,
+    showCopyright: false,
+    defaultAxes: {y: { ticks: {visible: true, majorHeight: 5 }},x: { ticks: { visible: true, majorHeight: 5 }}},
+  });
+
+    
+  p1 = board.create("point", [2,3.5], { name: "" , fillColor:'#306754',label:{autoPosition: true, offset:[0, -20]}});
+  p2 = board.create("point", [3,-2], { name: "" , label:{autoPosition: true, offset:[-5, 20]}});
+  f = board.create("point", [4.5,0], { name: "\\(F\\)" , label:{autoPosition: true, offset:[-10, -20]}});
+  
+  //p1.setProperty({snapToGrid: true,snapSizeX: 0.5});
+  //p2.setProperty({snapToGrid: true,snapSizeX: 0.5});
+  //f.setProperty({snapToGrid: true,snapSizeX: 0.5});
+  
+  var l1 = board.create('line', [p1, p2],{strokeColor:'green',strokewidth:1});
+  var ew = board.create('parabola',[f,l1],{strokeColor:'#000000',strokewidth:2});
+  
+  
+    ewg = board.create("glider", [6.5, 3.5, ew], { name: "\\(P\\)", label:{offset:[0, 20]} });
+//    ewg.setProperty({snapToGrid: true,snapSizeX: 0.5});
+    var w = board.create("tangent", [ewg],{strokeColor:'#256552',strokewidth:1,name:'\\(\\mathcal{L}_T\\)', withLabel: true, label:{offset:[10, -10],position:"lft"}});
+     
+    var l2 = board.create('perpendicular', [l1, f,0] ,{strokeColor:'#256552',strokewidth:1,name:'\\(\\mathcal{L}_2\\)', withLabel: true, label:{offset:[-30, 5],position:"rt"}});
+    var l3 = board.create('perpendicular', [l2, ewg,0] ,{highlight:false,strokeColor:'#256552',strokewidth:0,name:'', withLabel: true, label:{offset:[-30, 5],position:"rt"}});
+    var ll = board.create('perpendicular', [l1, ewg,0] ,{highlight:false,strokeColor:'#256552',strokewidth:0,name:'', withLabel: true, label:{offset:[-30, 5],position:"rt"}});
+    var lrecto = board.create('perpendicular', [l2, f] ,{highlight:false,strokeColor:'#256552',strokewidth:0,name:'\\(\\mathcal{L}_2\\)', withLabel: true, label:{offset:[-30, 5],position:"rt"}});
+   
+    var c1 = board.create('intersection', [ew, lrecto, 0], { name: "\\(R_1\\)", label:{offset:[10, 0]} });
+    var c2 = board.create('intersection', [ew, lrecto, 1], { name: "\\(R_2\\)", label:{offset:[10, 10]} });
+
+
+
+    var recto = board.create('segment', [ewg,board.create('intersection', [l2, l3, 0],{highlight:false,strokeColor:'#256552',strokewidth:1,name:'\\(R\\)',label:{offset:[-30, 5]}})],{strokeColor:'green',strokewidth:1,dash:1});
+    var recto2 = board.create('segment', [ewg,board.create('intersection', [l1, ll, 0],{highlight:false,strokeColor:'#256552',strokewidth:1,name:'\\(R_1\\)',label:{offset:[-30, 5]}})],{strokeColor:'black',strokewidth:1,dash:1});
+  
+    //var recto3 = board.create('segment', [ewg,board.create('intersection', [l2, l3, 0],{highlight:false,strokeColor:'#256552',strokewidth:1,name:'\\(R_2ww\\)',label:{offset:[-30, 5]}})],{strokeColor:'black',strokewidth:1,dash:1});
+
+    var recto2 = board.create('segment', [c1,c2],{strokeColor:'#256552',strokewidth:1,dash:1});
+    var recto2 = board.create('segment', [ewg,f],{strokeColor:'#256552',strokewidth:1,dash:1});
+
+
+  var b1 = board.create('intersection', [ew, l2, 0], { name: "\\(V\\)", label:{offset:[-15, -20]} });
+  var vec = board.create('arrow', [[0,0], b1],{straightFirst:true, straightLast:true, strokeWidth:1, dash:2});
+  
+  var b2 = board.create('intersection', [w, l2, 0], { name: "\\(S\\)", label:{offset:[-15, -20]} });
+  
+
+
+  var pol2 = board.create('polygon', [f, ewg, b2], {hasInnerPoints: true, dash:1});
+//  var t = board.create('text', [11, 0.2, function() { return pol2.Perimeter().toFixed(3); }]);
+
+
+</script>
 
 
 
@@ -212,7 +290,7 @@
 
     <h1>Título</h1>
     \[\sum_1^2\]
-    <div id="www1" class="jxgbox" style="width: 500px; height: 300px;"></div>
+    <div id="www1" class="jxgbox" style="width: 500px; height: 300px;margin: auto;"></div>
 
     <script>
       board = JXG.JSXGraph.initBoard("www1", {
@@ -246,5 +324,341 @@
     </script>
 
 
+<h1>Título</h1>
+\[\sum_1^2\]
+<div id="ww7" class="jxgbox" style="width: 500px; height: 300px;margin: auto;"></div>
+<script>
+ board = JXG.JSXGraph.initBoard('ww7', {boundingbox: [-1, 9, 13, -3], axis:true});
+
+var s = board.create('slider', [[4,7],[8,7],[1,1,1.5]], {name:'S', strokeColor:'black', fillColor:'white'});
+var f = [function(){return (s.Value()*4.5).toFixed(2);},
+                   function(){return (s.Value()*(-1)).toFixed(2);},
+                   function(){return (s.Value()*3).toFixed(2);},
+                   function(){return (s.Value()*2).toFixed(2);},
+                   function(){return (s.Value()*(-0.5)).toFixed(2);},
+                   function(){return (s.Value()*5.5).toFixed(2);},
+                   function(){return (s.Value()*2.5).toFixed(2);},
+                   function(){return (s.Value()*(-0.75)).toFixed(2);},
+                   function(){return (s.Value()*3.5).toFixed(2);},
+                   function(){return (s.Value()*2).toFixed(2);},
+                   function(){return (s.Value()*(-1.25)).toFixed(2);}
+                   ];
+var chart = board.create('chart', [f],
+                                          {chartStyle:'bar',width:0.8,labels:f,
+                                           colorArray:['#8E1B77','#BE1679','#DC1765','#DA2130','#DB311B','#DF4917','#E36317','#E87F1A',
+                                                       '#F1B112','#FCF302','#C1E212']});
+
+var dataArr = [4,1,3,2,5,6.5,1.5,2,0.5,1.5,-1];
+var chart2 = board.create('chart', dataArr, {chartStyle:'line,point'});
+chart2[0].setAttribute('strokeColor:black','strokeWidth:2pt');
+for(var i=0; i<11;i++) {
+         chart2[1][i].setAttribute({strokeColor:'black',fillColor:'white',face:'[]', size:4, strokeWidth:'2pt'});
+}
+board.unsuspendUpdate();
+</script>
+
+
+<div class="interactive">
+	<form id="options">
+		<div id="jxgbox1" class="explanation"><div class="spinnerWrapWrap spinnerMidMid"><div class="spinnerWrap arc-rotate2"><div class="spinner"><div class="arc"></div></div></div>Loading...</div></div>
+		<div id="output">
+			<p id="curveOptions">
+				<span><input type="checkbox" name="checkboxname" value="sncurve" id="sncurve" checked="checked" /> <label for="sncurve">Show standard normal curve</label></span>
+				<span><input type="checkbox" name="checkboxname" value="sdgraph" id="sdgraph" checked="checked" /> <label for="sdgraph">Show standard deviations</label></span>
+			</p>
+			<p id="musig">
+			   <span id="muOutput" class="intmath">wwww</span> 
+			   <span id="sigmaOutput" class="intmath"></span>
+			</p>
+			<p class="check2"><input type="checkbox" name="checkboxname" value="zscorecalc" id="zscorecalc" /> <label for="zscorecalc">Show <i>z</i>-score calculations</label></p>
+			<p id="zscores"><span id="z1ScoreCalc"></span> <span id="z2ScoreCalc"></span></p>
+			<p class="check2"><input type="checkbox" name="checkboxname" value="probcalc" id="probcalc" /> <label for="probcalc">Show probability calculation</label></p>			
+			<p id="probOutputWrap" class="displayNone">
+			  <span class="intmath">Probability = P(<i>z</i><sub>1</sub>) + P(<i>z</i><sub>2</sub>) = </span> <span id="probOutput" class="intmath"></span>
+			</p>
+		</div>
+	</form>
+</div>
+
+
+
+<div id="rrt" class="jxgbox" style="width:800px; height:300px;margin: auto;"></div>
+
+
+
+<script>
+	var a, bell,chk,segArr = [], ptArr=[], bellArr = [];
+	var mu = 7, sigma = 2.5;		
+	var bell = function(x) { return 1/(sigma*Math.sqrt(2*Math.PI)) * Math.exp(-1*Math.pow((x-mu),2)/(2*Math.pow(sigma,2))); };
+	var bellStand = function(x) { return 1/(Math.sqrt(2*Math.PI)) * Math.exp(-1*Math.pow((x),2)/(2)); };
+	var graphStart, graphEnd;
+	var graphWidth = Math.abs(graphStart)+Math.abs(graphEnd);
+	var slid_mu,doMathJax=0,ssncurve=0,doProbs=0;
+	var showSNcurve = 1,bellCurveStand,areaS;
+
+		JXG.Options.curve.highlight = false;
+		JXG.Options.board.minimizeReflow = 'all';
+		graphStart = mu - 3.5*sigma;
+		graphEnd = mu + 3.5*sigma + 1;
+		board = JXG.JSXGraph.initBoard("rrt", {showNavigation:false,showCopyright:false,boundingbox:[-3.5,0.82, 20,-0.25], axis:true,pan: true, zoom: true});
+		//var axs = board.create("line", [[0,0], [1,0]],{strokecolor:"#444", strokeWidth:1,highlight:false,fixed:true});
+		//var xticks = Math.pow(10, (Math.ceil(Math.log(sigma/5)/Math.log(10) )));
+		//board.create("ticks",[axs, xticks], {highlight:false,drawLabels:true, label:{ offset:[-2,-14]},needsRegularUpdate:false});
+		//var yaxs = board.create("segment", [ [0,0], [0,10] ],{strokecolor:"#444", highlight:false,strokeWidth:1,fixed:true});
+		//var yticks = 0.1;
+		//board.create("ticks",[yaxs, yticks], {drawLabels:true, label:{ offset:[-30,0]},needsRegularUpdate:false});
+		var bellCurve = board.create("functiongraph", [bell,-20,20],{strokeWidth:2,highlight:false,dash:0});
+		
+    for(i=-3;i<4;i++) {	
+			ptArr[i] = board.create("point", [i*sigma+mu,0],{visible:false,name:'e'});		
+			bellArr[i] = board.create("point", [i*sigma+mu,bell(i*sigma+mu)],{visible:false,name:'ee'});	
+			segArr[i] = board.create("segment", [ptArr[i] , bellArr[i]],{strokeWidth:1,dash:2,color:"#8C201A",fixed:true});
+		}			
+		
+    var slid_x1 = board.create('slider', [[-3,-0.1],[15,-0.1],[-3,3,15]], {strokeColor:'#306754',fillColor:'#306754',size:2,withTicks:false,withLabel:false});
+	  var slid_x2 = board.create('slider', [[-3,-0.1],[15,-0.1],[-3,6,15]], {strokeColor:'#306754',fillColor:'#306754',size:2,withTicks:false,withLabel:false});
+    slid_x1.baseline.setAttribute({strokeWidth:1, strokeColor:'#000',highlight:false});
+		slid_x1.highline.setAttribute({visible:false});		
+		slid_x2.baseline.setAttribute({visible:false});
+		slid_x2.highline.setAttribute({visible:false});		
+		
+    
+    showProbs = function() {
+			var ints = 10;
+			a1 = Math.min(0.5, Math.abs(JXG.Math.Numerics.NewtonCotes([mu,slid_x1.X()],bell,{number_of_nodes:ints,integration_type:"trapez"})) );
+			a2 = Math.min(0.5, Math.abs(JXG.Math.Numerics.NewtonCotes([mu,slid_x2.X()],bell,{number_of_nodes:ints,integration_type:"trapez"})) );
+			probOutputWrap.className = '';
+			if(slid_x1.X() < mu && slid_x2.X() > mu) {
+				probOutput.innerHTML = a1.toFixed(4)+" + "+a2.toFixed(4)+" = "+((a1+a2).toFixed(4));  
+			} else if(slid_x1.X() == mu) {
+				probOutput.innerHTML = a1.toFixed(4)+" + "+a2.toFixed(4)+" = "+((a1+a2).toFixed(4));				
+			} else if(slid_x2.X() == mu) {
+				probOutput.innerHTML = a1.toFixed(4)+" + "+a2.toFixed(4)+" = "+((a1+a2).toFixed(4)) ;				
+			} else if(slid_x1.X() < mu && slid_x2.X() < mu){
+				probOutput.innerHTML = a1.toFixed(4)+" &minus; "+a2.toFixed(4)+" = "+((a1-a2).toFixed(4));  
+			} else {
+				probOutput.innerHTML = a2.toFixed(4)+" &minus; "+a1.toFixed(4)+" = "+((a2-a1).toFixed(4)); 
+			}
+		}
+
+
+		var slid_mu =  board.create('slider', [[-3,0.5],[15,0.5],[-3,7,15]],    {strokeColor:'#306754',fillColor:'#306754',size:2,withTicks:false, withLabel:false});
+		var slid_sig = board.create('slider', [[-3,0.5],[15,0.5],[-3,mu+sigma,15]], {strokeColor:'#306754',fillColor:'#306754',size:2,withTicks:false, withLabel:false});
+		slid_mu.baseline.setAttribute({strokeWidth:1, strokeColor:'#000',highlight:false});
+		slid_mu.highline.setAttribute({visible:false});		
+		slid_sig.baseline.setAttribute({visible:false});
+		slid_sig.highline.setAttribute({visible:false});				
+
+
+		board.create('text',[ function(){ return slid_mu.X();}, 0.57, function() { return "\\(\\mu\\) = "+parseFloat(mu).toFixed(2);}], {label:{position: "lft", offset:[0,-15]}} );
+		board.create('text',[ function(){ return slid_sig.X();}, 0.43, function() { return "\\(\\sigma\\) = "+sigma.toFixed(2);}], {label:{autoPosition: true, offset:[0,-15]}} );		
+
+
+    var ints = 10;
+    a1 = Math.min(0.5, Math.abs(JXG.Math.Numerics.NewtonCotes([mu,slid_x1.X()],bell,{number_of_nodes:ints,integration_type:"trapez"})) );
+    a2 = Math.min(0.5, Math.abs(JXG.Math.Numerics.NewtonCotes([mu,slid_x2.X()],bell,{number_of_nodes:ints,integration_type:"trapez"})) );
+    
+    board.create('text',[ 1, 0.3, function() { return "\\(P(z_1)+P(z_2)\\) = "+ a1.toFixed(4)+" + "+a2.toFixed(4)+" = "+((a1+a2).toFixed(4));}], {label:{autoPosition: true, offset:[0,-15]}} );		
+
+
+    
+
+    showMuSig = function() {
+			muOutput.innerHTML = "&\\(\\mu\\) = mean = "+parseFloat(mu).toFixed(2);
+			sigmaOutput.innerHTML = "\\(\\sigma\\) = standard deviation = "+sigma.toFixed(2);
+		}
+
+    
+
+    board.create('text',[ 0.5, 0.7, function() {return "\\(z_1=\\frac{x_1 - \\mu}{\\sigma} = \\)("+slid_x1.X().toFixed(2)+"-"+slid_mu.X().toFixed(2)+")/"+(slid_sig.X()-slid_mu.X()).toFixed(2)+"="+((slid_x1.X() - slid_mu.X())/ (slid_sig.X()-slid_mu.X())).toFixed(4);}] );		
+		board.create('text',[ 10, 0.67, function() {return "\\(z_2=\\frac{x_2 - \\mu}{\\sigma} = \\)("+slid_x2.X().toFixed(2)+"-"+slid_mu.X().toFixed(2)+")/"+(slid_sig.X()-slid_mu.X()).toFixed(2)+"="+( (slid_x2.X() - slid_mu.X())/ (slid_sig.X()-slid_mu.X()) ).toFixed(4);}] );		
+
+
+    showMuSig();
+		showZscoreCalc = function() {
+			z1ScoreCalc.innerHTML = "`z_1=(x_1 - mu)/sigma = ("+slid_x1.X().toFixed(2)+"-"+slid_mu.X().toFixed(2)+")/"+(slid_sig.X()-slid_mu.X()).toFixed(2)+"="+( (slid_x1.X() - slid_mu.X())/ (slid_sig.X()-slid_mu.X()) ).toFixed(4)+"`" ;
+			z2ScoreCalc.innerHTML = "`z_2=(x_2 - mu)/sigma = ("+slid_x2.X().toFixed(2)+"-"+slid_mu.X().toFixed(2)+")/"+(slid_sig.X()-slid_mu.X()).toFixed(2)+"="+( (slid_x2.X() - slid_mu.X())/ (slid_sig.X()-slid_mu.X()) ).toFixed(4)+"`" ;
+			if (typeof(MathJax) != "undefined") {				
+				MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+			} else if(typeof(katex) != "undefined") {
+				doAMprocessor = true;
+				AMfunc(doAMprocessor);						
+			}	
+		}	
+		slid_x1.on('drag', function() {			
+			if(Math.abs(slid_x1.X() - slid_x1.X().toFixed(0)) < 0.008) {
+				slid_x1.moveTo([slid_x1.X().toFixed(0),0]);
+			}
+			slid_x2.moveTo([Math.max(slid_x1.X()+0.15,slid_x2.X()),0],0);
+			showMuSig();
+			if(doMathJax == 1){
+				showZscoreCalc();
+			}
+			if(doProbs == 1) {
+				showProbs();
+			}
+		});	
+		slid_x2.on('drag', function() {	
+			if(Math.abs(slid_x2.X() - slid_x2.X().toFixed(0)) < 0.008) {
+				slid_x2.moveTo([slid_x2.X().toFixed(0),0]);
+			}		
+			slid_x1.moveTo([Math.min(slid_x1.X(),slid_x2.X()-0.15),0],0);
+			showMuSig();
+			if(doMathJax == 1){
+				showZscoreCalc();
+			}
+			if(doProbs == 1) {
+				showProbs();
+			}
+		});		
+		slid_mu.on('drag', function() {
+			mu = slid_mu.X();		
+			if(Math.abs(mu - mu.toFixed(0)) < 0.008) {
+				slid_mu.moveTo([mu.toFixed(0),0]);
+			}
+			mu = slid_mu.X();
+			slid_sig.moveTo([slid_mu.X()+sigma,0]);
+			for(i=-3;i<4;i++) {		
+				ptArr[i].moveTo([i*sigma+mu,0]);
+				bellArr[i].moveTo([i*sigma+mu,bell(i*sigma+mu)]);
+			}
+			showMuSig();
+			if(doMathJax == 1){
+				showZscoreCalc();
+			}
+			if(doProbs == 1) {
+				showProbs();
+			}
+		});
+		slid_sig.on('drag', function() {		
+			if(slid_sig.X() - mu > 0.24) {
+				sigma = Math.abs(slid_sig.X() - mu);			
+				if(Math.abs(sigma - sigma.toFixed(0)) < 0.008) {
+					slid_sig.moveTo([(slid_sig.X()).toFixed(0),0]);
+				} else {
+					slid_sig.moveTo([mu + sigma,0]);
+				}
+				sigma = Math.abs(slid_sig.X() - mu);
+				for(i=-3;i<4;i++) {		
+					ptArr[i].moveTo([i*sigma+mu,0]);
+					bellArr[i].moveTo([i*sigma+mu,bell(i*sigma+mu)]);
+				}
+				showMuSig();
+				if(doMathJax == 1){
+					showZscoreCalc();
+				}
+				if(doProbs == 1) {
+					showProbs();
+				}			
+			} else {		
+				slid_sig.moveTo([mu+0.25,0], 0);				
+				sigma = 0.25;
+			}
+		});
+
+
+		x1txt = board.create("text",[function(){ return slid_x1.X(); },-0.05,function(){return "\\(x_1\\) = "+slid_x1.X().toFixed(2);}], {highlight:false});			
+		x2txt = board.create("text",[function(){ return slid_x2.X(); },-0.15,function(){return "\\(x_2\\) = "+slid_x2.X().toFixed(2);}], {highlight:false});
+
+		var xData, yData;
+		var area = board.create('curve', [[], []], {color: 'grey', opacity: 0.5, highlightStrokeColorOpacity: 0.3});
+		area.updateDataArray = function () {		
+			xData = [slid_x1.X()];
+			yData = [bellCurve.Y(slid_x1.X())];   
+			for (j = 0; j < bellCurve.numberPoints; j++) {  // cannot be "i" because interferes with sigma segments
+				if ((slid_x1.X() <= bellCurve.points[j].usrCoords[1]) && (bellCurve.points[j].usrCoords[1] <= slid_x2.X())) {
+					xData.push(bellCurve.points[j].usrCoords[1]);				
+					yData.push(bellCurve.points[j].usrCoords[2]);
+				}
+			}
+			xData.push(slid_x2.X());
+			yData.push(bellCurve.Y(slid_x2.X()));
+			xData.push(slid_x2.X());	
+			yData.push(0);
+			xData.push(slid_x1.X());
+			yData.push(0);
+			xData.push(slid_x1.X());
+			yData.push(bellCurve.Y(slid_x1.X()));
+			this.dataX = xData;
+			this.dataY = yData;
+		};
+/////////////////////////////////////////////////////////////////////////////////////
+		showSNcurve = function() {	
+			bellCurveStand = board.create("functiongraph", [bellStand,-20,20],{strokeWidth:1,strokecolor:"#000000",highlight:false,dash:0});
+			var xDataS, yDataS;
+			areaS = board.create('curve', [[], []], {color: '#aaa777', opacity: 0.9});
+			areaS.updateDataArray = function () {
+				xDataS = [(slid_x1.X()-mu)/sigma];
+				yDataS = [bellCurveStand.Y((slid_x1.X()-mu)/sigma)];   
+				for (k = 0; k < bellCurveStand.numberPoints; k++) {  // cannot be "i" or "j"
+					if (((slid_x1.X()-mu)/sigma <= bellCurveStand.points[k].usrCoords[1]) && (bellCurveStand.points[k].usrCoords[1] <= (slid_x2.X()-mu)/sigma)) {
+						xDataS.push(bellCurveStand.points[k].usrCoords[1]);				
+						yDataS.push(bellCurveStand.points[k].usrCoords[2]);
+					}
+				}
+				xDataS.push((slid_x2.X()-mu)/sigma);
+				yDataS.push(bellCurveStand.Y((slid_x2.X()-mu)/sigma));
+				xDataS.push((slid_x2.X()-mu)/sigma);	
+				yDataS.push(0);
+				xDataS.push((slid_x1.X()-mu)/sigma);
+				yDataS.push(0);
+				xDataS.push((slid_x1.X()-mu)/sigma);
+				yDataS.push(bellCurveStand.Y((slid_x1.X()-mu)/sigma));
+				this.dataX = xDataS;
+				this.dataY = yDataS;
+			};
+		}
+		chkBoxes = document.getElementById("options").getElementsByTagName("input");
+		for(p=0;p<chkBoxes.length;p++){
+			var thisChk = chkBoxes[p];			
+			var thisId = chkBoxes[p].id;			
+			if(thisId=="sdgraph"){
+				if(chkBoxes[p].checked){				
+					for(i=-3;i<4;i++) {
+						segArr[i].setAttribute('visible:true');
+					}
+				} else {
+					for(i=-3;i<4;i++) {
+						segArr[i].setAttribute('visible:true');
+					}		
+				}				
+			} else if(thisId=="sncurve"){
+				if(chkBoxes[p].checked){				
+					board.removeObject(bellCurveStand);	
+					board.removeObject(areaS);
+					showSNcurve();
+					ssncurve = 1;
+				} else {
+					board.removeObject(bellCurveStand);	
+					board.removeObject(areaS);	
+					ssncurve = 0;
+				}			
+			} else if(thisId=="zscorecalc"){
+				
+				if(chkBoxes[p].checked){				
+					showZscoreCalc();
+					zscores.style.display = "block";
+					doMathJax = 1;
+				} else {
+					z1ScoreCalc.innerHTML = "" ;
+					z2ScoreCalc.innerHTML = "";
+					zscores.style.display = "none";
+					doMathJax = 0;
+				}
+			} else {
+				if(chkBoxes[p].checked){
+					showProbs();
+					doProbs = 1;
+				} else {
+					probOutputWrap.className = "displayNone";
+					doProbs = 0;
+				}
+			}
+		}	
+</script>
+Lorem ipsum dolor sit amet consectetur adipisicing elit. Eius ipsum doloribus voluptatum soluta alias corporis nesciunt quos accusamus non. Praesentium nulla vero exercitationem, laborum eligendi nam vel velit libero natus?
+
+Lorem ipsum dolor sit amet consectetur adipisicing elit. Fuga et est consequatur, eveniet corporis ea labore quidem aliquid odio quisquam doloribus provident. Perspiciatis necessitatibus harum distinctio sapiente, assumenda reiciendis magni.
+Lorem ipsum dolor, sit amet consectetur adipisicing elit. Iste, eius libero. Facere debitis maiores aspernatur rerum delectus dolores doloremque, quos consequatur perspiciatis error excepturi sit unde eligendi, praesentium sint laudantium?
   </body>
 </html>
