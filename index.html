@@ -80,34 +80,34 @@ JXG.Options.axis.ticks.ticksDistance = 100;
       f1 = board.create("point", [2,-1], { name: "\\(F_1\\)" , fillColor:'#306754',label:{autoPosition: true, offset:[0, -20]}});
       f2 = board.create("point", [8,3], { name: "\\(F_2\\)" , label:{autoPosition: true, offset:[-5, -20]}});
       var l1 = board.create('line', [f1, f2],{strokeColor:'green',strokewidth:1});
-      var mp1 = board.create('midpoint', [f1, f2], { name: "\\(O\\)", label:{autoPosition: true, offset:[10,-10]}});
-      var vec = board.create('arrow', [[0,0], mp1],{straightFirst:true, straightLast:true, strokeWidth:1, dash:2});
-      var perp1 = board.create('perpendicular', [l1, mp1] ,{strokeColor:'red',strokewidth:0});
+      var mp1ww = board.create('midpoint', [f1, f2], { name: "\\(O\\)", label:{autoPosition: true, offset:[10,-10]}});
+      var vec = board.create('arrow', [[0,0], mp1ww],{straightFirst:true, straightLast:true, strokeWidth:1, dash:2});
+      var perp1 = board.create('perpendicular', [l1, mp1ww] ,{highlight:false,strokeColor:'red',strokewidth:0});
 
 
       ew=board.create("ellipse", [f1, f2, 9],{strokeColor:'#000000',strokewidth:2});
 
       
        
-      var b1 = board.create('intersection', [ew, perp1, 0], { name: "\\(B_1\\)", label:{offset:[-15, -20]} });
-      var b2 = board.create('intersection', [ew, perp1, 1], { name: "\\(B_2\\)", label:{offset:[5, -20]} });
+      var b1w = board.create('intersection', [ew, perp1, 0], { name: "\\(B_1\\)", label:{offset:[-15, -20]} });
+      var b2w = board.create('intersection', [ew, perp1, 1], { name: "\\(B_2\\)", label:{offset:[5, -20]} });
 
-      var c1 = board.create('intersection', [ew, l1, 0], { name: "\\(V_1\\)", label:{offset:[15, -10]} });
+      var c1w = board.create('intersection', [ew, l1, 0], { name: "\\(V_1\\)", label:{offset:[15, -10]} });
       var c2 = board.create('intersection', [ew, l1, 1], { name: "\\(V_2\\)", label:{offset:[-30, 5]} });
 
 
 
-      var s1 = board.create('segment', [b1, b2],{strokeColor:'green',strokewidth:1});
-      var s1 = board.create('segment', [b1, f2],{straightFirst:true, straightLast:true, strokeWidth:1, dash:1});
+      var s1 = board.create('segment', [b1w, b2w],{strokeColor:'green',strokewidth:1});
+      var s1 = board.create('segment', [b1w, f2],{straightFirst:true, straightLast:true, strokeWidth:1, dash:1});
       
       
 
       ewg = board.create("glider", [2, 2, ew], { name: "\\(P\\)", label:{position: "rt", offset:[-20, 20]} });
 
-      c3 = board.create('circle', [mp1, function() { return mp1.Dist(c1)*mp1.Dist(c1)/mp1.Dist(f1); }],{strokeColor:'red',strokewidth:0});
+      c3w = board.create('circle', [mp1ww, function() { return mp1ww.Dist(c1w)*mp1ww.Dist(c1w)/mp1ww.Dist(f1); }],{highlight:false,strokeColor:'red',strokewidth:0});
 
-      var d1 = board.create('intersection', [c3, l1, 0], { name: ""});
-      var d2 = board.create('intersection', [c3, l1, 1], { name: ""});
+      var d1 = board.create('intersection', [c3w, l1, 0], { name: ""});
+      var d2 = board.create('intersection', [c3w, l1, 1], { name: ""});
 
       var perp2 = board.create('perpendicular', [l1, d1],{strokeColor:'#256552',strokewidth:1,name:'\\(\\mathcal{L}_1\\)', withLabel: true, label:{offset:[-30, 5],position:"lft"}});
       var perp3 = board.create('perpendicular', [l1, d2],{strokeColor:'#256552',strokewidth:1,name:'\\(\\mathcal{L}_1\\)', withLabel: true, label:{offset:[10, 10],position:"lft"}});
@@ -146,13 +146,13 @@ JXG.Options.axis.ticks.ticksDistance = 100;
   });
 
     
-  f1 = board.create("point", [2,-1], { name: "\\(F_1\\)" , fillColor:'#306754',label:{autoPosition: true, offset:[0, -20]}});
-  f2 = board.create("point", [8,3], { name: "\\(F_2\\)" , label:{autoPosition: true, offset:[-5, 20]}});
+  var f1 = board.create("point", [2,-1], { name: "\\(F_1\\)" , fillColor:'#306754',label:{autoPosition: true, offset:[0, -20]}});
+ var f2 = board.create("point", [8,3], { name: "\\(F_2\\)" , label:{autoPosition: true, offset:[-5, 20]}});
 
   var l1 = board.create('line', [f1, f2],{strokeColor:'green',strokewidth:1});
   var mp1 = board.create('midpoint', [f1, f2], { name: "\\(O\\)", label:{autoPosition: true, offset:[0,-15]}});
   var vec = board.create('arrow', [[0,0], mp1],{straightFirst:true, straightLast:true, strokeWidth:1, dash:2});
-  var perp1 = board.create('perpendicular', [l1, mp1] ,{strokeColor:'red',strokewidth:0});
+  var perp1 = board.create('perpendicular', [l1, mp1] ,{highlight:false,strokeColor:'red',strokewidth:0});
 
 
   ew=board.create("hyperbola", [f1, f2, 5.5],{strokeColor:'#000000',strokewidth:2});
@@ -162,16 +162,16 @@ JXG.Options.axis.ticks.ticksDistance = 100;
    
 
 
-  cc1 = board.create('circle', [mp1, f1],{strokeColor:'red',strokewidth:1,dash:1});
+ var cc1 = board.create('circle', [mp1, f1],{strokeColor:'red',strokewidth:1,dash:1});
 //
-  var b1 = board.create('intersection', [ew, perp1, 0], { name: "\\(B_1\\)", label:{offset:[-15, -20]} });
-  var b2 = board.create('intersection', [ew, perp1, 1], { name: "\\(B_2\\)", label:{offset:[5, -20]} });
+  var b1r = board.create('intersection', [ew, perp1, 0], { name: "\\(B_1\\)", label:{offset:[-15, -20]} });
+  var b2r = board.create('intersection', [ew, perp1, 1], { name: "\\(B_2\\)", label:{offset:[5, -20]} });
 //
-  var c1 = board.create('intersection', [ew, l1, 0], { name: "\\(V_1\\)", label:{offset:[15, -10]} });
-  var c2 = board.create('intersection', [ew, l1, 1], { name: "\\(V_2\\)", label:{offset:[-30, 5]} });
+  var c1r = board.create('intersection', [ew, l1, 0], { name: "\\(V_1\\)", label:{offset:[15, -10]} });
+  var c2r = board.create('intersection', [ew, l1, 1], { name: "\\(V_2\\)", label:{offset:[-30, 5]} });
 
-  var perp2 = board.create('perpendicular', [l1, c1] ,{strokeColor:'red',strokewidth:0});
-  var perp3 = board.create('perpendicular', [l1, c2] ,{strokeColor:'red',strokewidth:0});
+  var perp2 = board.create('perpendicular', [l1, c1r] ,{highlight:false,strokeColor:'red',strokewidth:0});
+  var perp3 = board.create('perpendicular', [l1, c2r] ,{highlight:false,strokeColor:'red',strokewidth:0});
 
   var r1 = board.create('intersection', [cc1, perp2, 0], { name: "", label:{offset:[-15, -20]} });
   var r2 = board.create('intersection', [cc1, perp2, 1], { name: "", label:{offset:[5, -20]} });
@@ -179,27 +179,27 @@ JXG.Options.axis.ticks.ticksDistance = 100;
   var s1 = board.create('intersection', [cc1, perp3, 0], { name: "", label:{offset:[-15, -20]} });
   var s2 = board.create('intersection', [cc1, perp3, 1], { name: "", label:{offset:[5, -20]} });
 
-  var asintota1 = board.create('line', [s2, r1],{strokeColor:'black',strokewidth:1});  
-  var asintota1 = board.create('line', [s1, r2],{strokeColor:'black',strokewidth:1});
+  var asintota1 = board.create('line', [s2, r1],{strokeColor:'green',strokewidth:1,dash:1});  
+  var asintota1 = board.create('line', [s1, r2],{strokeColor:'green',strokewidth:1,dash:1});
 
 
   var segmento1 = board.create('segment', [s1, s2],{strokeColor:'green',strokewidth:1});
   var segmento2 = board.create('segment', [r1, r2],{strokeColor:'green',strokewidth:1});
 
   
-  var recto1 = board.create('perpendicular', [l1, f1] ,{strokeColor:'red',strokewidth:0});
-  var recto2 = board.create('perpendicular', [l1, f2] ,{strokeColor:'red',strokewidth:0});
+  var recto1 = board.create('perpendicular', [l1, f1] ,{highlight:false,strokeColor:'red',strokewidth:0});
+  var recto2 = board.create('perpendicular', [l1, f2] ,{highlight:false,strokeColor:'red',strokewidth:0});
 
 var recto_s = board.create('segment', [board.create('intersection', [ew, recto1, 0], {name: ""}), board.create('intersection', [ew, recto1, 1], {name: ""})],{strokeColor:'green',strokewidth:1});
 var recto_s = board.create('segment', [board.create('intersection', [ew, recto2, 0], {name: ""}), board.create('intersection', [ew, recto2, 1], {name: ""})],{strokeColor:'green',strokewidth:1});
 
-  var s1 = board.create('segment', [b1, b2],{strokeColor:'green',strokewidth:1});
-  var s1 = board.create('segment', [b1, f2],{straightFirst:true, straightLast:true, strokeWidth:1, dash:1});
+  var s1 = board.create('segment', [b1r, b2r],{strokeColor:'green',strokewidth:1});
+  var s1 = board.create('segment', [b1r, f2],{straightFirst:true, straightLast:true, strokeWidth:1, dash:1});
   
   
 
 
-  c3 = board.create('circle', [mp1, function() { return mp1.Dist(c1)*mp1.Dist(c1)/mp1.Dist(f1); }],{strokeColor:'red',strokewidth:0});
+var  c3 = board.create('circle', [mp1, function() { return mp1.Dist(c1r)*mp1.Dist(c1r)/mp1.Dist(f1); }],{highlight:false,strokeColor:'red',strokewidth:0});
 
   var d1 = board.create('intersection', [c3, l1, 0], { name: ""});
   var d2 = board.create('intersection', [c3, l1, 1], { name: ""});
